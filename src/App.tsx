@@ -4,8 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GameProvider } from "@/context/GameContext";
-import Home from "./pages/Home";
+import HomeSocial from "./pages/HomeSocial";
 import CharacterCreation from "./pages/CharacterCreation";
+import Journeys from "./pages/Journeys";
 import OrbsMap from "./pages/OrbsMap";
 import OrbDetail from "./pages/OrbDetail";
 import ChallengePage from "./pages/ChallengePage";
@@ -13,6 +14,7 @@ import Profile from "./pages/Profile";
 import Inventory from "./pages/Inventory";
 import Grimoire from "./pages/Grimoire";
 import Medals from "./pages/Medals";
+import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,8 +27,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<HomeSocial />} />
             <Route path="/create" element={<CharacterCreation />} />
+            <Route path="/journeys" element={<Journeys />} />
             <Route path="/orbs" element={<OrbsMap />} />
             <Route path="/orb/:orbId" element={<OrbDetail />} />
             <Route path="/challenge/:challengeId" element={<ChallengePage />} />
@@ -34,6 +37,7 @@ const App = () => (
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/grimoire" element={<Grimoire />} />
             <Route path="/medals" element={<Medals />} />
+            <Route path="/community" element={<Community />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
