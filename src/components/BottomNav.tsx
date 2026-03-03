@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Map, User, Backpack, BookOpen, Trophy } from 'lucide-react';
+import { Home, Gamepad2, Backpack, Users, User } from 'lucide-react';
 
 const navItems = [
-  { to: '/orbs', icon: Map, label: 'Orbes' },
+  { to: '/', icon: Home, label: 'Home' },
+  { to: '/journeys', icon: Gamepad2, label: 'Jornadas' },
   { to: '/inventory', icon: Backpack, label: 'Inventário' },
-  { to: '/grimoire', icon: BookOpen, label: 'Grimório' },
-  { to: '/medals', icon: Trophy, label: 'Medalhas' },
+  { to: '/community', icon: Users, label: 'Comunidade' },
   { to: '/profile', icon: User, label: 'Perfil' },
 ];
 
