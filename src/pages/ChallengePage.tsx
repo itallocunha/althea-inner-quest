@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Send, Sparkles } from 'lucide-react';
+import { ChevronLeft, Send, Sparkles, Lightbulb } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
 import { ALL_CHALLENGES } from '@/data/gameData';
 import { ATTRIBUTE_LABELS, AttributeKey } from '@/types/game';
@@ -35,12 +35,22 @@ export default function ChallengePage() {
           <motion.div key="challenge" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <h1 className="text-2xl font-display text-accent mb-2">{challenge.title}</h1>
             <div className="bg-card rounded-xl border border-border p-4 mb-4">
-              <p className="text-sm font-body text-foreground/90 italic leading-relaxed">{challenge.narrative}</p>
+              <p className="text-sm font-body text-foreground/90 leading-relaxed">{challenge.narrative}</p>
             </div>
-            <div className="bg-primary/10 rounded-xl border border-primary/30 p-4 mb-6">
+            <div className="bg-primary/10 rounded-xl border border-primary/30 p-4 mb-4">
               <h3 className="text-xs font-display text-accent mb-1 uppercase tracking-wider">Objetivo</h3>
               <p className="text-sm font-body">{challenge.objective}</p>
             </div>
+
+            {challenge.tip && (
+              <div className="bg-accent/10 rounded-xl border border-accent/30 p-4 mb-6 flex gap-3 items-start">
+                <Lightbulb size={18} className="text-accent mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-xs font-display text-accent mb-1 uppercase tracking-wider">Dica</h3>
+                  <p className="text-sm font-body text-foreground/80">{challenge.tip}</p>
+                </div>
+              </div>
+            )}
 
             {!completed && (
               <>
@@ -102,7 +112,7 @@ export default function ChallengePage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              <p className="text-sm text-muted-foreground font-body">🏅 Medalha: {challenge.medalName}</p>
+              <p className="text-sm text-muted-foreground font-body">🏅 Badge: {challenge.medalName}</p>
               <div className="text-xs text-muted-foreground font-body">
                 {Object.entries(challenge.attributeBoosts).map(([k, v]) => (
                   <span key={k} className="mr-2">+{v} {ATTRIBUTE_LABELS[k as AttributeKey]}</span>

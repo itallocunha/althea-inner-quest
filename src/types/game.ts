@@ -79,10 +79,23 @@ export interface Challenge {
   title: string;
   narrative: string;
   objective: string;
+  tip?: string;
   attributeBoosts: Partial<Attributes>;
   xpReward: number;
   medalName: string;
   cardReward?: ItemCard | SkillCard;
+}
+
+export interface OrbStory {
+  orbId: OrbId;
+  fragmentTitle: string;
+  story: string;
+  learningObjectives: string[];
+  reflectionPoint: string;
+  completionSkill: SkillCard;
+  completionAttributeBoosts: Partial<Attributes>;
+  trajectoryStory: string;
+  finalReflection: string;
 }
 
 export interface ItemCard {
