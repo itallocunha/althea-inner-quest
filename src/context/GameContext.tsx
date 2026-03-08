@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { GameState, CharacterData, ChallengeProgress, ItemCard, SkillCard, Attributes, DEFAULT_ATTRIBUTES, calculateLevel, XP_PER_LEVEL } from '@/types/game';
+import { GameState, CharacterData, CharacterStory, ChallengeProgress, ItemCard, SkillCard, Attributes, DEFAULT_ATTRIBUTES, calculateLevel, XP_PER_LEVEL } from '@/types/game';
 import { getChallengesForOrb, ORBS } from '@/data/gameData';
 
 interface GameContextType {
