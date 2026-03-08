@@ -50,7 +50,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState(prev => ({ ...prev, character: { ...data, level: 1, xp: 0 } }));
   }, []);
 
-  const completeChallenge = useCallback((challengeId: string, response?: string) => {
+  const completeChallenge = useCallback((challengeId: string, response?: string, imageUrl?: string) => {
     setState(prev => {
       if (!prev.character) return prev;
       const allChallenges = ORBS.flatMap((orb) => getChallengesForOrb(orb.id));
