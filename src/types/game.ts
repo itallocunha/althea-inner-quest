@@ -145,6 +145,13 @@ export interface ChallengeProgress {
   completedAt?: string;
 }
 
+export interface CharacterStory {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+}
+
 export interface GameState {
   character: CharacterData | null;
   challengeProgress: Record<string, ChallengeProgress>;
@@ -152,6 +159,7 @@ export interface GameState {
   itemCards: ItemCard[];
   skillCards: SkillCard[];
   currentOrbIndex: number;
+  stories: CharacterStory[];
 }
 
 export const XP_PER_LEVEL = 100;

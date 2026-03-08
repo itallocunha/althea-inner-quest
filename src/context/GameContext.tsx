@@ -8,6 +8,7 @@ interface GameContextType {
   completeChallenge: (challengeId: string, response?: string) => void;
   distributePoints: (attr: keyof Attributes, points: number) => void;
   resetGame: () => void;
+  addStory: (title: string, content: string) => void;
   getOrbProgress: (orbIndex: number) => number;
   isOrbUnlocked: (orbIndex: number) => boolean;
   isChallengeUnlocked: (challengeId: string) => boolean;
@@ -23,6 +24,7 @@ const defaultState: GameState = {
   itemCards: [],
   skillCards: [],
   currentOrbIndex: 0,
+  stories: [],
 };
 
 function loadState(): GameState {
@@ -112,6 +114,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
+  const addStory = useCallback((title: string, content: string) => {
+    setState(prev => ({
+      ...prev,
+      stories: [
+        { id: `story-${Date.now()}`, title, content, createdAt: new Date().toISOString() },
+        ...(prev.stories || []),
+      ],
+    }));
+  }, []);
+
   const getOrbProgress = useCallback((orbIndex: number) => {
     const orb = ORBS[orbIndex];
     if (!orb) return 0;
@@ -139,7 +151,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, [state.challengeProgress]);
 
   return (
-    <GameContext.Provider value={{ state, createCharacter, completeChallenge, distributePoints, resetGame, getOrbProgress, isOrbUnlocked, isChallengeUnlocked, isChallengeCompleted }}>
+    <GameContext.Provider value={{ state, createCharacter, completeChallenge, distributePoints, resetGame, addStory, getOrbProgress, isOrbUnlocked, isChallengeUnlocked, isChallengeCompleted }}>
       {children}
     </GameContext.Provider>
   );
