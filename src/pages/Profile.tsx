@@ -4,37 +4,21 @@ import { useGame } from '@/context/GameContext';
 import { ATTRIBUTE_LABELS, AttributeKey, RACE_LABELS, CLASS_LABELS, RACE_ICONS, CLASS_ICONS } from '@/types/game';
 import { XPBar } from '@/components/XPBar';
 import { BottomNav } from '@/components/BottomNav';
-import { Plus, RotateCcw, Backpack, Trophy, BookOpen, ScrollText, ChevronRight, Save, X } from 'lucide-react';
-import { useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
+import { Plus, RotateCcw, ChevronRight } from 'lucide-react';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { state, distributePoints, resetGame, addStory } = useGame();
-  const [showStoryForm, setShowStoryForm] = useState(false);
-  const [storyTitle, setStoryTitle] = useState('');
-  const [storyContent, setStoryContent] = useState('');
+  const { state, distributePoints, resetGame } = useGame();
 
-  if (!state.character) {
-    navigate('/');
-    return null;
-  }
+  if (!state.character) { navigate('/'); return null; }
 
   const c = state.character;
 
-  const handleSaveStory = () => {
-    if (!storyTitle.trim() || !storyContent.trim()) return;
-    addStory(storyTitle.trim(), storyContent.trim());
-    setStoryTitle('');
-    setStoryContent('');
-    setShowStoryForm(false);
-  };
-
   const quickLinks = [
-    { icon: Backpack, label: 'Inventário', count: state.itemCards.length, to: '/inventory', emoji: '🎒' },
-    { icon: Trophy, label: 'Coleção de Medalhas', count: state.unlockedMedals.length, to: '/medals', emoji: '🏅' },
-    { icon: BookOpen, label: 'Grimório de Habilidades', count: state.skillCards.length, to: '/grimoire', emoji: '📖' },
+    { label: 'Inventário', count: state.itemCards.length, to: '/inventory', emoji: '🎒' },
+    { label: 'Coleção de Medalhas', count: state.unlockedMedals.length, to: '/medals', emoji: '🏅' },
+    { label: 'Grimório de Habilidades', count: state.skillCards.length, to: '/grimoire', emoji: '📖' },
+    { label: 'Histórias do Personagem', count: (state.stories || []).length, to: '/stories', emoji: '📚' },
   ];
 
   return (
@@ -51,13 +35,11 @@ export default function Profile() {
         <p className="text-xs text-muted-foreground font-body">Idade: {c.age}</p>
       </div>
 
-      <div className="mb-6">
-        <XPBar />
-      </div>
+      <div className="mb-6"><XPBar /></div>
 
-      {/* Quick Navigation Buttons */}
+      {/* Quick Navigation */}
       <div className="space-y-2 mb-6">
-        {quickLinks.map(({ icon: Icon, label, count, to, emoji }) => (
+        {quickLinks.map(({ label, count, to, emoji }) => (
           <motion.button
             key={to}
             onClick={() => navigate(to)}
@@ -72,91 +54,6 @@ export default function Profile() {
             <ChevronRight size={16} className="text-muted-foreground" />
           </motion.button>
         ))}
-      </div>
-
-      {/* Character Stories Section */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-display text-accent text-sm flex items-center gap-2">
-            <ScrollText size={16} /> Histórias do Personagem
-          </h2>
-          <button
-            onClick={() => setShowStoryForm(true)}
-            className="text-[10px] font-body text-accent border border-accent/30 rounded-full px-3 py-1 hover:bg-accent/10 transition-colors"
-          >
-            + Nova História
-          </button>
-        </div>
-
-        {showStoryForm && (
-          <motion.div
-            className="bg-card rounded-xl border border-accent/30 p-4 mb-3"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <Input
-              placeholder="Título da história..."
-              value={storyTitle}
-              onChange={(e) => setStoryTitle(e.target.value)}
-              className="mb-2 bg-secondary border-border text-sm font-display"
-            />
-            <Textarea
-              placeholder="Conte a história do seu personagem, suas conquistas, aventuras e momentos marcantes..."
-              value={storyContent}
-              onChange={(e) => setStoryContent(e.target.value)}
-              className="mb-3 bg-secondary border-border text-sm font-body min-h-[120px]"
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={handleSaveStory}
-                disabled={!storyTitle.trim() || !storyContent.trim()}
-                className="flex-1 py-2 rounded-full gradient-accent text-accent-foreground text-sm font-body flex items-center justify-center gap-2 disabled:opacity-40"
-              >
-                <Save size={14} /> Salvar História
-              </button>
-              <button
-                onClick={() => { setShowStoryForm(false); setStoryTitle(''); setStoryContent(''); }}
-                className="px-4 py-2 rounded-full border border-border text-muted-foreground text-sm font-body"
-              >
-                <X size={14} />
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {(!state.stories || state.stories.length === 0) && !showStoryForm ? (
-          <div className="text-center py-8 bg-card rounded-xl border border-border">
-            <span className="text-3xl block mb-2">📚</span>
-            <p className="text-xs text-muted-foreground font-body">Nenhuma história escrita ainda.</p>
-            <p className="text-[10px] text-muted-foreground font-body">Conte as aventuras do seu personagem!</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {state.stories?.map((story, i) => (
-              <motion.div
-                key={story.id}
-                className="bg-card rounded-xl border border-border p-4 relative overflow-hidden"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                {/* Book-like decoration */}
-                <div className="absolute top-0 left-0 w-1 h-full bg-accent/40 rounded-l-xl" />
-                <div className="pl-3">
-                  <div className="flex items-start justify-between">
-                    <h3 className="font-display text-sm text-accent">{story.title}</h3>
-                    <span className="text-[9px] font-body text-muted-foreground whitespace-nowrap ml-2">
-                      {new Date(story.createdAt).toLocaleDateString('pt-BR')}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground font-body mt-2 leading-relaxed whitespace-pre-wrap">
-                    {story.content}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
       </div>
 
       {c.freePoints > 0 && (

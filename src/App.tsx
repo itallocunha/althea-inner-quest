@@ -15,6 +15,7 @@ import Inventory from "./pages/Inventory";
 import Grimoire from "./pages/Grimoire";
 import Medals from "./pages/Medals";
 import Community from "./pages/Community";
+import CharacterStories from "./pages/CharacterStories";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/grimoire" element={<Grimoire />} />
             <Route path="/medals" element={<Medals />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/stories" element={<CharacterStories />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { GameState, CharacterData, ChallengeProgress, ItemCard, SkillCard, Attributes, DEFAULT_ATTRIBUTES, calculateLevel, XP_PER_LEVEL } from '@/types/game';
+import { GameState, CharacterData, CharacterStory, ChallengeProgress, ItemCard, SkillCard, Attributes, DEFAULT_ATTRIBUTES, calculateLevel, XP_PER_LEVEL } from '@/types/game';
 import { getChallengesForOrb, ORBS } from '@/data/gameData';
 
 interface GameContextType {
@@ -9,6 +9,9 @@ interface GameContextType {
   distributePoints: (attr: keyof Attributes, points: number) => void;
   resetGame: () => void;
   addStory: (title: string, content: string) => void;
+  editStory: (id: string, title: string, content: string) => void;
+  deleteStory: (id: string) => void;
+  reorderStories: (stories: CharacterStory[]) => void;
   getOrbProgress: (orbIndex: number) => number;
   isOrbUnlocked: (orbIndex: number) => boolean;
   isChallengeUnlocked: (challengeId: string) => boolean;
@@ -124,6 +127,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const editStory = useCallback((id: string, title: string, content: string) => {
+    setState(prev => ({
+      ...prev,
+      stories: (prev.stories || []).map(s => s.id === id ? { ...s, title, content } : s),
+    }));
+  }, []);
+
+  const deleteStory = useCallback((id: string) => {
+    setState(prev => ({
+      ...prev,
+      stories: (prev.stories || []).filter(s => s.id !== id),
+    }));
+  }, []);
+
+  const reorderStories = useCallback((stories: CharacterStory[]) => {
+    setState(prev => ({ ...prev, stories }));
+  }, []);
+
   const getOrbProgress = useCallback((orbIndex: number) => {
     const orb = ORBS[orbIndex];
     if (!orb) return 0;
@@ -151,7 +172,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, [state.challengeProgress]);
 
   return (
-    <GameContext.Provider value={{ state, createCharacter, completeChallenge, distributePoints, resetGame, addStory, getOrbProgress, isOrbUnlocked, isChallengeUnlocked, isChallengeCompleted }}>
+    <GameContext.Provider value={{ state, createCharacter, completeChallenge, distributePoints, resetGame, addStory, editStory, deleteStory, reorderStories, getOrbProgress, isOrbUnlocked, isChallengeUnlocked, isChallengeCompleted }}>
       {children}
     </GameContext.Provider>
   );
