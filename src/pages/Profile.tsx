@@ -25,7 +25,11 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState<string | null>(() => {
     try { return localStorage.getItem('althea-profile-image'); } catch { return null; }
   });
+  const [bannerImage, setBannerImage] = useState<string | null>(() => {
+    try { return localStorage.getItem('althea-banner-image'); } catch { return null; }
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   if (!state.character) { navigate('/'); return null; }
   const c = state.character;
@@ -44,6 +48,18 @@ export default function Profile() {
     reader.readAsDataURL(file);
   };
 
+  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setBannerImage(dataUrl);
+      localStorage.setItem('althea-banner-image', dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const quickLinks = [
     { label: 'Inventário', count: state.itemCards.length, to: '/inventory', emoji: '🎒', Icon: Sword },
     { label: 'Coleção de Medalhas', count: state.unlockedMedals.length, to: '/medals', emoji: '🏅', Icon: Shield },
@@ -58,9 +74,25 @@ export default function Profile() {
     <div className="min-h-screen pb-20 px-4 pt-6 max-w-md mx-auto">
       {/* Profile Header Card */}
       <div className="relative rounded-3xl overflow-hidden border border-border mb-6">
-        {/* Banner gradient */}
-        <div className="h-24 bg-gradient-to-br from-primary via-primary/80 to-accent/30 relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.1),transparent_60%)]" />
+        {/* Banner - custom or gradient */}
+        <div className="h-28 relative overflow-hidden group cursor-pointer" onClick={() => bannerInputRef.current?.click()}>
+          {bannerImage ? (
+            <img src={bannerImage} alt="Banner" className="w-full h-full object-cover" />
+          ) : (
+            <div className="h-full bg-gradient-to-br from-primary via-primary/80 to-accent/30">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.1),transparent_60%)]" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <Camera size={20} className="text-white" />
+          </div>
+          <input
+            ref={bannerInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleBannerUpload}
+          />
         </div>
         
         {/* Avatar */}
