@@ -8,6 +8,7 @@ interface GameContextType {
   completeChallenge: (challengeId: string, response?: string) => void;
   distributePoints: (attr: keyof Attributes, points: number) => void;
   resetGame: () => void;
+  addStory: (title: string, content: string) => void;
   getOrbProgress: (orbIndex: number) => number;
   isOrbUnlocked: (orbIndex: number) => boolean;
   isChallengeUnlocked: (challengeId: string) => boolean;
