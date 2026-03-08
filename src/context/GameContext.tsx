@@ -127,6 +127,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const editStory = useCallback((id: string, title: string, content: string) => {
+    setState(prev => ({
+      ...prev,
+      stories: (prev.stories || []).map(s => s.id === id ? { ...s, title, content } : s),
+    }));
+  }, []);
+
+  const deleteStory = useCallback((id: string) => {
+    setState(prev => ({
+      ...prev,
+      stories: (prev.stories || []).filter(s => s.id !== id),
+    }));
+  }, []);
+
+  const reorderStories = useCallback((stories: CharacterStory[]) => {
+    setState(prev => ({ ...prev, stories }));
+  }, []);
+
   const getOrbProgress = useCallback((orbIndex: number) => {
     const orb = ORBS[orbIndex];
     if (!orb) return 0;
