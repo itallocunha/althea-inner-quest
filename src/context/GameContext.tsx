@@ -151,7 +151,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, [state.challengeProgress]);
 
   return (
-    <GameContext.Provider value={{ state, createCharacter, completeChallenge, distributePoints, resetGame, getOrbProgress, isOrbUnlocked, isChallengeUnlocked, isChallengeCompleted }}>
+    <GameContext.Provider value={{ state, createCharacter, completeChallenge, distributePoints, resetGame, addStory, getOrbProgress, isOrbUnlocked, isChallengeUnlocked, isChallengeCompleted }}>
       {children}
     </GameContext.Provider>
   );
