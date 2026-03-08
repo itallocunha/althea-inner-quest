@@ -17,6 +17,7 @@ import Medals from "./pages/Medals";
 import Community from "./pages/Community";
 import CharacterStories from "./pages/CharacterStories";
 import Collections from "./pages/Collections";
+import OrbPortfolio from "./pages/OrbPortfolio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/medals" element={<Medals />} />
             <Route path="/community" element={<Community />} />
             <Route path="/stories" element={<CharacterStories />} />
+            <Route path="/portfolio/:orbId" element={<OrbPortfolio />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

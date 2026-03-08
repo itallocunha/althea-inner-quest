@@ -5,7 +5,7 @@ import { getChallengesForOrb, ORBS } from '@/data/gameData';
 interface GameContextType {
   state: GameState;
   createCharacter: (data: CharacterData) => void;
-  completeChallenge: (challengeId: string, response?: string) => void;
+  completeChallenge: (challengeId: string, response?: string, imageUrl?: string) => void;
   distributePoints: (attr: keyof Attributes, points: number) => void;
   resetGame: () => void;
   addStory: (title: string, content: string) => void;
@@ -50,7 +50,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState(prev => ({ ...prev, character: { ...data, level: 1, xp: 0 } }));
   }, []);
 
-  const completeChallenge = useCallback((challengeId: string, response?: string) => {
+  const completeChallenge = useCallback((challengeId: string, response?: string, imageUrl?: string) => {
     setState(prev => {
       if (!prev.character) return prev;
       const allChallenges = ORBS.flatMap((orb) => getChallengesForOrb(orb.id));
@@ -58,7 +58,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (!challenge) return prev;
 
       const newProgress: ChallengeProgress = {
-        challengeId, completed: true, response, completedAt: new Date().toISOString(),
+        challengeId, completed: true, response, imageUrl, completedAt: new Date().toISOString(),
       };
 
       const newXP = prev.character.xp + challenge.xpReward;
