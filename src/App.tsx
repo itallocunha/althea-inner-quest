@@ -43,6 +43,7 @@ const App = () => (
             <Route path="/medals" element={<Medals />} />
             <Route path="/community" element={<Community />} />
             <Route path="/stories" element={<CharacterStories />} />
+            <Route path="/portfolio/:orbId" element={<OrbPortfolio />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

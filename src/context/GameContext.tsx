@@ -58,7 +58,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (!challenge) return prev;
 
       const newProgress: ChallengeProgress = {
-        challengeId, completed: true, response, completedAt: new Date().toISOString(),
+        challengeId, completed: true, response, imageUrl, completedAt: new Date().toISOString(),
       };
 
       const newXP = prev.character.xp + challenge.xpReward;
