@@ -107,7 +107,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState(prev => {
       if (!prev.character || prev.character.freePoints < points) return prev;
       const newAttrs = { ...prev.character.attributes };
-      newAttrs[attr] = Math.min(10, newAttrs[attr] + points);
+      newAttrs[attr] = Math.min(100, newAttrs[attr] + points);
       return { ...prev, character: { ...prev.character, attributes: newAttrs, freePoints: prev.character.freePoints - points } };
     });
   }, []);
