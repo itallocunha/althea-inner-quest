@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGame } from '@/context/GameContext';
 import { BottomNav } from '@/components/BottomNav';
+import { CardDetailModal } from '@/components/CardDetailModal';
 import { useNavigate } from 'react-router-dom';
+import { ItemCard } from '@/types/game';
 
 const ITEM_ART: Record<string, string> = {
   '🖼️': 'linear-gradient(135deg, hsl(270 50% 45%), hsl(210 60% 50%))',
@@ -37,6 +40,7 @@ function getCategoryStyle(category: string) {
 export default function Inventory() {
   const navigate = useNavigate();
   const { state } = useGame();
+  const [selected, setSelected] = useState<ItemCard | null>(null);
 
   if (!state.character) { navigate('/'); return null; }
 
@@ -64,46 +68,39 @@ export default function Inventory() {
               transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
               whileHover={{ scale: 1.05, y: -4 }}
               whileTap={{ scale: 0.97 }}
+              onClick={() => setSelected(card)}
             >
-              {/* Card Art */}
-              <div
-                className="h-28 flex items-center justify-center relative"
-                style={{ background: getItemGradient(card.icon) }}
-              >
+              <div className="h-28 flex items-center justify-center relative" style={{ background: getItemGradient(card.icon) }}>
                 <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/20" />
-                {/* Rarity sparkle */}
                 <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white/60 animate-pulse" />
                 <span className="text-5xl drop-shadow-lg relative z-10">{card.icon}</span>
               </div>
-
-              {/* Card Info */}
               <div className="bg-card p-3 relative">
-                {/* Category badge */}
                 <div className="absolute -top-3 left-2">
                   <span className={`text-[8px] font-display px-2 py-0.5 rounded-full border ${getCategoryStyle(card.category)}`}>
                     {card.category}
                   </span>
                 </div>
-
                 <h3 className="font-display text-xs text-accent mt-1 leading-tight">{card.name}</h3>
-                <p className="text-[9px] text-muted-foreground font-body mt-1.5 leading-relaxed line-clamp-3">
-                  {card.description}
-                </p>
-
-                {/* Card footer */}
-                <div className="mt-2 pt-2 border-t border-border flex items-center justify-between">
-                  <span className="text-[8px] font-body text-muted-foreground uppercase tracking-wider">Item</span>
-                  <div className="flex gap-0.5">
-                    {[1,2,3].map(s => (
-                      <div key={s} className="w-1.5 h-1.5 rounded-sm bg-accent/30 rotate-45" />
-                    ))}
-                  </div>
-                </div>
+                <p className="text-[9px] text-muted-foreground font-body mt-1.5 leading-relaxed line-clamp-2">{card.description}</p>
               </div>
             </motion.div>
           ))}
         </div>
       )}
+
+      <CardDetailModal
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        type="item"
+        data={selected ? {
+          icon: selected.icon,
+          name: selected.name,
+          description: selected.description,
+          category: selected.category,
+          gradient: getItemGradient(selected.icon),
+        } : null}
+      />
 
       <BottomNav />
     </div>
