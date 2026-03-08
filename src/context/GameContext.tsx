@@ -9,6 +9,9 @@ interface GameContextType {
   distributePoints: (attr: keyof Attributes, points: number) => void;
   resetGame: () => void;
   addStory: (title: string, content: string) => void;
+  editStory: (id: string, title: string, content: string) => void;
+  deleteStory: (id: string) => void;
+  reorderStories: (stories: CharacterStory[]) => void;
   getOrbProgress: (orbIndex: number) => number;
   isOrbUnlocked: (orbIndex: number) => boolean;
   isChallengeUnlocked: (challengeId: string) => boolean;
