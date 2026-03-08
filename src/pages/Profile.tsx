@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGame } from '@/context/GameContext';
-import { ATTRIBUTE_LABELS, AttributeKey, RACE_LABELS, CLASS_LABELS, RACE_ICONS, CLASS_ICONS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
+import { CoreAttributeKey, AdvancedAttributeKey, CORE_ATTRIBUTE_META, ADVANCED_ATTRIBUTE_META, ATTRIBUTE_MAX, RACE_LABELS, CLASS_LABELS, RACE_ICONS, CLASS_ICONS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
 import { BottomNav } from '@/components/BottomNav';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { Plus, RotateCcw, ChevronRight, Camera, Sword, Shield, Scroll, BookOpen } from 'lucide-react';
@@ -256,29 +256,111 @@ export default function Profile() {
         ))}
       </div>
 
-      {/* Attributes */}
-      <h2 className="font-display text-accent text-sm mb-3">Atributos</h2>
-      <div className="bg-card rounded-xl border border-border p-4 mb-6">
-        <div className="space-y-2.5">
-          {(Object.keys(c.attributes) as AttributeKey[]).map(key => (
-            <div key={key} className="flex items-center gap-2">
-              <span className="text-[10px] font-body text-muted-foreground w-28 truncate">{ATTRIBUTE_LABELS[key]}</span>
-              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full gradient-accent rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(c.attributes[key] / 10) * 100}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
-              <span className="text-[10px] font-body text-accent w-4 text-right">{c.attributes[key]}</span>
-              {c.freePoints > 0 && c.attributes[key] < 10 && (
-                <button onClick={() => distributePoints(key, 1)} className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
-                  <Plus size={9} className="text-accent" />
-                </button>
-              )}
-            </div>
-          ))}
+      {/* Core Attributes */}
+      <h2 className="font-display text-accent text-sm mb-3">⚔️ Atributos Principais</h2>
+      <div className="bg-card rounded-2xl border border-border p-4 mb-4">
+        <div className="grid grid-cols-1 gap-3">
+          {(Object.keys(CORE_ATTRIBUTE_META) as CoreAttributeKey[]).map((key, i) => {
+            const meta = CORE_ATTRIBUTE_META[key];
+            const val = c.attributes[key] || 0;
+            const pct = (val / ATTRIBUTE_MAX) * 100;
+            return (
+              <motion.div
+                key={key}
+                className="relative"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.03 }}
+              >
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span className="text-base w-6 text-center">{meta.icon}</span>
+                  <span className="text-[11px] font-display text-foreground flex-1">{meta.label}</span>
+                  <span className="text-[10px] font-body font-semibold" style={{ color: `hsl(${meta.color})` }}>
+                    {val}/{ATTRIBUTE_MAX}
+                  </span>
+                  {c.freePoints > 0 && val < ATTRIBUTE_MAX && (
+                    <button
+                      onClick={() => distributePoints(key, 5)}
+                      className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                      style={{ backgroundColor: `hsl(${meta.color} / 0.2)` }}
+                    >
+                      <Plus size={9} style={{ color: `hsl(${meta.color})` }} />
+                    </button>
+                  )}
+                </div>
+                <div className="h-2 bg-secondary rounded-full overflow-hidden ml-8">
+                  <motion.div
+                    className="h-full rounded-full relative"
+                    style={{
+                      background: `linear-gradient(90deg, hsl(${meta.color} / 0.6), hsl(${meta.color}))`,
+                    }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ duration: 0.6, delay: i * 0.03 }}
+                  >
+                    {pct > 10 && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+                    )}
+                  </motion.div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Advanced RPG Attributes */}
+      <h2 className="font-display text-accent text-sm mb-3">🌟 Atributos Avançados</h2>
+      <div className="bg-card rounded-2xl border border-border p-4 mb-6">
+        <p className="text-[10px] font-body text-muted-foreground mb-3">
+          Evoluem em jornadas futuras — desbloqueie novos jogos para progredir!
+        </p>
+        <div className="grid grid-cols-2 gap-2.5">
+          {(Object.keys(ADVANCED_ATTRIBUTE_META) as AdvancedAttributeKey[]).map((key, i) => {
+            const meta = ADVANCED_ATTRIBUTE_META[key];
+            const val = c.attributes[key] || 0;
+            const pct = (val / ATTRIBUTE_MAX) * 100;
+            const locked = val === 0;
+
+            return (
+              <motion.div
+                key={key}
+                className={`rounded-xl border p-2.5 relative overflow-hidden ${
+                  locked ? 'border-border/50 opacity-60' : 'border-border'
+                }`}
+                style={!locked ? { borderColor: `hsl(${meta.color} / 0.3)` } : {}}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: locked ? 0.6 : 1, scale: 1 }}
+                transition={{ delay: i * 0.03 }}
+              >
+                {!locked && (
+                  <div
+                    className="absolute inset-0 opacity-10"
+                    style={{ background: `radial-gradient(circle at 80% 20%, hsl(${meta.color}), transparent 60%)` }}
+                  />
+                )}
+                <div className="relative z-10">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="text-sm">{meta.icon}</span>
+                    <span className="text-[10px] font-display text-foreground leading-tight">{meta.label}</span>
+                  </div>
+                  <div className="h-1.5 bg-secondary rounded-full overflow-hidden mb-1">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ background: `hsl(${meta.color})` }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-body text-muted-foreground">{val}/{ATTRIBUTE_MAX}</span>
+                    <span className="text-[8px] font-body text-muted-foreground/70 italic">{meta.journey}</span>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 

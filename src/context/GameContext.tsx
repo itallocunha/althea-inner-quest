@@ -69,7 +69,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const newAttrs = { ...prev.character.attributes };
       for (const [key, val] of Object.entries(challenge.attributeBoosts)) {
         const k = key as keyof Attributes;
-        newAttrs[k] = Math.min(10, newAttrs[k] + (val as number));
+        newAttrs[k] = Math.min(100, newAttrs[k] + (val as number));
       }
 
       const newMedals = [...prev.unlockedMedals, challenge.medalName];
@@ -107,7 +107,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState(prev => {
       if (!prev.character || prev.character.freePoints < points) return prev;
       const newAttrs = { ...prev.character.attributes };
-      newAttrs[attr] = Math.min(10, newAttrs[attr] + points);
+      newAttrs[attr] = Math.min(100, newAttrs[attr] + points);
       return { ...prev, character: { ...prev.character, attributes: newAttrs, freePoints: prev.character.freePoints - points } };
     });
   }, []);
