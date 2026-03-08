@@ -25,7 +25,11 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState<string | null>(() => {
     try { return localStorage.getItem('althea-profile-image'); } catch { return null; }
   });
+  const [bannerImage, setBannerImage] = useState<string | null>(() => {
+    try { return localStorage.getItem('althea-banner-image'); } catch { return null; }
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   if (!state.character) { navigate('/'); return null; }
   const c = state.character;
