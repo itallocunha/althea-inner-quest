@@ -48,6 +48,18 @@ export default function Profile() {
     reader.readAsDataURL(file);
   };
 
+  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setBannerImage(dataUrl);
+      localStorage.setItem('althea-banner-image', dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const quickLinks = [
     { label: 'Inventário', count: state.itemCards.length, to: '/inventory', emoji: '🎒', Icon: Sword },
     { label: 'Coleção de Medalhas', count: state.unlockedMedals.length, to: '/medals', emoji: '🏅', Icon: Shield },

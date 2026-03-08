@@ -37,6 +37,7 @@ const App = () => (
             <Route path="/challenge/:challengeId" element={<ChallengePage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/inventory" element={<Inventory />} />
+            <Route path="/collections" element={<Collections />} />
             <Route path="/grimoire" element={<Grimoire />} />
             <Route path="/medals" element={<Medals />} />
             <Route path="/community" element={<Community />} />
