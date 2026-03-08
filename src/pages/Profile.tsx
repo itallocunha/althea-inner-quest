@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGame } from '@/context/GameContext';
-import { ATTRIBUTE_LABELS, AttributeKey, RACE_LABELS, CLASS_LABELS, RACE_ICONS, CLASS_ICONS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
+import { CoreAttributeKey, AdvancedAttributeKey, CORE_ATTRIBUTE_META, ADVANCED_ATTRIBUTE_META, ATTRIBUTE_MAX, RACE_LABELS, CLASS_LABELS, RACE_ICONS, CLASS_ICONS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
 import { BottomNav } from '@/components/BottomNav';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { Plus, RotateCcw, ChevronRight, Camera, Sword, Shield, Scroll, BookOpen } from 'lucide-react';
