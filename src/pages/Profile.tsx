@@ -200,7 +200,8 @@ export default function Profile() {
           const colors = ORB_COLORS[orb.id] || 'from-gray-400 to-gray-600';
 
           return (
-            <motion.div
+            <motion.button
+              onClick={() => navigate(`/portfolio/${orb.id}`)}
               key={orb.id}
               className={`rounded-xl border p-3 ${isUnlocked ? 'bg-card border-border' : 'bg-card/40 border-border/40 opacity-50'}`}
               initial={{ opacity: 0, x: -20 }}
