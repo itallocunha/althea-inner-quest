@@ -114,6 +114,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
+  const addStory = useCallback((title: string, content: string) => {
+    setState(prev => ({
+      ...prev,
+      stories: [
+        { id: `story-${Date.now()}`, title, content, createdAt: new Date().toISOString() },
+        ...(prev.stories || []),
+      ],
+    }));
+  }, []);
+
   const getOrbProgress = useCallback((orbIndex: number) => {
     const orb = ORBS[orbIndex];
     if (!orb) return 0;
