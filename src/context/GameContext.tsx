@@ -24,6 +24,7 @@ const defaultState: GameState = {
   itemCards: [],
   skillCards: [],
   currentOrbIndex: 0,
+  stories: [],
 };
 
 function loadState(): GameState {
