@@ -5,7 +5,7 @@ import { getChallengesForOrb, ORBS } from '@/data/gameData';
 interface GameContextType {
   state: GameState;
   createCharacter: (data: CharacterData) => void;
-  completeChallenge: (challengeId: string, response?: string) => void;
+  completeChallenge: (challengeId: string, response?: string, imageUrl?: string) => void;
   distributePoints: (attr: keyof Attributes, points: number) => void;
   resetGame: () => void;
   addStory: (title: string, content: string) => void;
