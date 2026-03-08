@@ -229,7 +229,7 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </motion.button>
           );
         })}
       </div>
