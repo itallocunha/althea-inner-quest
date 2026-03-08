@@ -17,6 +17,7 @@ import Medals from "./pages/Medals";
 import Community from "./pages/Community";
 import CharacterStories from "./pages/CharacterStories";
 import Collections from "./pages/Collections";
+import OrbPortfolio from "./pages/OrbPortfolio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
