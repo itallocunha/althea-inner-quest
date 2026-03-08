@@ -16,6 +16,7 @@ import Grimoire from "./pages/Grimoire";
 import Medals from "./pages/Medals";
 import Community from "./pages/Community";
 import CharacterStories from "./pages/CharacterStories";
+import Collections from "./pages/Collections";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
