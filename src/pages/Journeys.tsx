@@ -2,10 +2,15 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
 import { JOURNEY_GAMES, JourneyGame } from '@/data/feedData';
+import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { BottomNav } from '@/components/BottomNav';
-import { Lock, ChevronRight } from 'lucide-react';
+import { Lock, ChevronRight, Star, Trophy, Zap } from 'lucide-react';
 
-function GameCard({ game, progress }: { game: JourneyGame; progress?: number }) {
+function GameCard({ game, progress, orbStats }: { 
+  game: JourneyGame; 
+  progress?: number;
+  orbStats?: { completed: number; total: number; currentOrb: string }; 
+}) {
   const navigate = useNavigate();
   const isActive = game.status === 'active';
 
@@ -13,7 +18,7 @@ function GameCard({ game, progress }: { game: JourneyGame; progress?: number }) 
     <motion.button
       onClick={() => isActive && navigate('/orbs')}
       disabled={!isActive}
-      className={`w-full text-left rounded-2xl border p-4 transition-all ${
+      className={`w-full text-left rounded-2xl border overflow-hidden transition-all ${
         isActive
           ? 'bg-card border-primary/40 hover:border-accent/60'
           : 'bg-card/50 border-border/50 opacity-60'
@@ -21,27 +26,44 @@ function GameCard({ game, progress }: { game: JourneyGame; progress?: number }) 
       whileHover={isActive ? { scale: 1.01 } : {}}
       whileTap={isActive ? { scale: 0.99 } : {}}
     >
-      <div className="flex items-center gap-4">
-        <div
-          className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${
-            isActive ? 'gradient-primary glow-primary' : 'bg-secondary'
-          }`}
-        >
-          {game.icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="font-display text-sm text-foreground truncate">{game.name}</h3>
-            {!isActive && <Lock size={12} className="text-muted-foreground shrink-0" />}
-          </div>
-          <p className="text-xs font-body text-muted-foreground line-clamp-2">{game.description}</p>
-          {isActive && typeof progress === 'number' && (
-            <div className="mt-2">
-              <div className="flex justify-between mb-0.5">
-                <span className="text-[10px] font-body text-muted-foreground">Progresso</span>
-                <span className="text-[10px] font-body text-accent">{progress}%</span>
+      {/* Header gradient */}
+      <div
+        className="h-20 relative flex items-center px-5"
+        style={{
+          background: isActive
+            ? `linear-gradient(135deg, hsl(${game.color}), hsl(${game.color} / 0.6))`
+            : 'linear-gradient(135deg, hsl(270 20% 20%), hsl(270 15% 15%))',
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/10" />
+        <div className="relative z-10 flex items-center gap-4 w-full">
+          <span className="text-4xl">{game.icon}</span>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display text-sm text-white drop-shadow-md">{game.name}</h3>
+            {!isActive && (
+              <div className="flex items-center gap-1 mt-0.5">
+                <Lock size={10} className="text-white/60" />
+                <span className="text-[10px] font-body text-white/60">Em Breve</span>
               </div>
-              <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+            )}
+          </div>
+          {isActive && <ChevronRight size={18} className="text-white/70 shrink-0" />}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="p-4">
+        <p className="text-xs font-body text-muted-foreground mb-3 line-clamp-2">{game.description}</p>
+        
+        {isActive && typeof progress === 'number' && (
+          <>
+            {/* Progress bar */}
+            <div className="mb-3">
+              <div className="flex justify-between mb-1">
+                <span className="text-[10px] font-body text-muted-foreground">Progresso Geral</span>
+                <span className="text-[10px] font-body text-accent font-semibold">{progress}%</span>
+              </div>
+              <div className="h-2 bg-secondary rounded-full overflow-hidden">
                 <motion.div
                   className="h-full gradient-accent rounded-full"
                   initial={{ width: 0 }}
@@ -50,26 +72,47 @@ function GameCard({ game, progress }: { game: JourneyGame; progress?: number }) 
                 />
               </div>
             </div>
-          )}
-        </div>
-        {isActive && <ChevronRight size={16} className="text-muted-foreground shrink-0" />}
+
+            {/* Stats row */}
+            {orbStats && (
+              <div className="flex items-center gap-4 pt-2 border-t border-border">
+                <div className="flex items-center gap-1.5">
+                  <Trophy size={12} className="text-accent" />
+                  <span className="text-[10px] font-body text-muted-foreground">
+                    {orbStats.completed}/{orbStats.total} desafios
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Star size={12} className="text-accent" />
+                  <span className="text-[10px] font-body text-muted-foreground">
+                    5 Orbes
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Zap size={12} className="text-accent" />
+                  <span className="text-[10px] font-body text-muted-foreground">
+                    {orbStats.currentOrb}
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
-      {!isActive && (
-        <div className="mt-2 inline-block px-2 py-0.5 rounded-full bg-secondary">
-          <span className="text-[10px] font-body text-muted-foreground">Em Breve</span>
-        </div>
-      )}
     </motion.button>
   );
 }
 
 export default function Journeys() {
-  const { getOrbProgress } = useGame();
+  const { getOrbProgress, state } = useGame();
   
-  // Calculate overall self-knowledge game progress
   const totalProgress = Math.round(
     [0, 1, 2, 3, 4].reduce((sum, i) => sum + getOrbProgress(i), 0) / 5
   );
+
+  const totalCompleted = Object.values(state.challengeProgress).filter(p => p.completed).length;
+  const totalChallenges = ORBS.reduce((sum, orb) => sum + getChallengesForOrb(orb.id).length, 0);
+  const currentOrb = ORBS[Math.min(state.currentOrbIndex, ORBS.length - 1)];
 
   return (
     <div className="min-h-screen pb-20 px-4 pt-6 max-w-lg mx-auto">
@@ -78,7 +121,7 @@ export default function Journeys() {
         <p className="text-xs font-body text-muted-foreground">Escolha sua próxima aventura evolutiva</p>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {JOURNEY_GAMES.map((game, i) => (
           <motion.div
             key={game.id}
@@ -89,6 +132,11 @@ export default function Journeys() {
             <GameCard
               game={game}
               progress={game.id === 'self-knowledge' ? totalProgress : undefined}
+              orbStats={game.id === 'self-knowledge' ? {
+                completed: totalCompleted,
+                total: totalChallenges,
+                currentOrb: currentOrb?.name || '',
+              } : undefined}
             />
           </motion.div>
         ))}

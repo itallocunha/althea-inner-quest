@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useGame } from '@/context/GameContext';
 import { BottomNav } from '@/components/BottomNav';
+import { CardDetailModal } from '@/components/CardDetailModal';
 import { useNavigate } from 'react-router-dom';
+import { SkillCard } from '@/types/game';
 
 const SKILL_ART: Record<string, string> = {
   '💡': 'radial-gradient(circle at 30% 30%, hsl(45 100% 70%), hsl(45 80% 40%))',
@@ -14,6 +17,8 @@ const SKILL_ART: Record<string, string> = {
   '🔥': 'radial-gradient(circle at 30% 30%, hsl(15 90% 55%), hsl(0 70% 30%))',
   '⚡': 'radial-gradient(circle at 30% 30%, hsl(50 100% 60%), hsl(40 90% 35%))',
   '🌊': 'radial-gradient(circle at 30% 30%, hsl(200 80% 55%), hsl(220 70% 30%))',
+  '🔮': 'radial-gradient(circle at 30% 30%, hsl(280 60% 55%), hsl(260 50% 30%))',
+  '🪽': 'radial-gradient(circle at 30% 30%, hsl(0 70% 55%), hsl(350 60% 30%))',
 };
 
 function getCardGradient(icon: string) {
@@ -23,6 +28,7 @@ function getCardGradient(icon: string) {
 export default function Grimoire() {
   const navigate = useNavigate();
   const { state } = useGame();
+  const [selected, setSelected] = useState<SkillCard | null>(null);
 
   if (!state.character) { navigate('/'); return null; }
 
@@ -50,52 +56,41 @@ export default function Grimoire() {
               transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
               whileHover={{ scale: 1.05, y: -4 }}
               whileTap={{ scale: 0.97 }}
-              style={{ perspective: '600px' }}
+              onClick={() => setSelected(card)}
             >
-              {/* Card Art */}
-              <div
-                className="h-32 flex items-center justify-center relative"
-                style={{ background: getCardGradient(card.icon) }}
-              >
-                {/* Shimmer overlay */}
+              <div className="h-32 flex items-center justify-center relative" style={{ background: getCardGradient(card.icon) }}>
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                {/* Rarity border glow */}
                 <div className="absolute inset-0 border border-accent/30 rounded-t-2xl" />
                 <span className="text-5xl drop-shadow-lg relative z-10">{card.icon}</span>
               </div>
-
-              {/* Card Info */}
               <div className="bg-card p-3 relative">
-                {/* Type badge */}
                 <div className="absolute -top-3 right-2">
                   <span className={`text-[9px] font-display px-2 py-0.5 rounded-full border ${
-                    card.passive 
-                      ? 'bg-primary/30 border-primary/40 text-primary-foreground' 
-                      : 'bg-accent/30 border-accent/40 text-accent'
+                    card.passive ? 'bg-primary/30 border-primary/40 text-primary-foreground' : 'bg-accent/30 border-accent/40 text-accent'
                   }`}>
                     {card.passive ? '⭐ Passiva' : '⚡ Ativa'}
                   </span>
                 </div>
-
                 <h3 className="font-display text-xs text-accent mt-1 leading-tight">{card.name}</h3>
-                <p className="text-[9px] text-muted-foreground font-body mt-1.5 leading-relaxed line-clamp-3">
-                  {card.description}
-                </p>
-
-                {/* Card footer decoration */}
-                <div className="mt-2 pt-2 border-t border-border flex items-center justify-between">
-                  <span className="text-[8px] font-body text-muted-foreground uppercase tracking-wider">Habilidade</span>
-                  <div className="flex gap-0.5">
-                    {[1,2,3].map(s => (
-                      <div key={s} className="w-1 h-1 rounded-full bg-accent/40" />
-                    ))}
-                  </div>
-                </div>
+                <p className="text-[9px] text-muted-foreground font-body mt-1.5 leading-relaxed line-clamp-2">{card.description}</p>
               </div>
             </motion.div>
           ))}
         </div>
       )}
+
+      <CardDetailModal
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        type="skill"
+        data={selected ? {
+          icon: selected.icon,
+          name: selected.name,
+          description: selected.description,
+          passive: selected.passive,
+          gradient: getCardGradient(selected.icon),
+        } : null}
+      />
 
       <BottomNav />
     </div>
