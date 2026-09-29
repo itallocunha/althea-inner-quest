@@ -7,6 +7,10 @@ import { BottomNav } from '@/components/BottomNav';
 import { Heart, MessageCircle, Share2, Gamepad2, User, Backpack, Trophy, Star, Sparkles, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import heroBg from '@/assets/hero-bg.jpg';
+import { ArrowRight, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ORB_ART, CHARACTER_ART } from '@/lib/journeyAssets';
+import { getJourneyResume } from '@/lib/journeyProgress';
 
 function FeedCard({ post }: { post: FeedPost }) {
   const [liked, setLiked] = useState(false);
@@ -114,6 +118,7 @@ export default function HomeSocial() {
 
   const currentXP = xpForCurrentLevel(c.xp);
   const xpPercent = (currentXP / XP_PER_LEVEL) * 100;
+  const resume = getJourneyResume(state);
 
   const quickActions = [
     { icon: Gamepad2, label: 'Jogar', to: '/journeys', accent: true },
@@ -173,6 +178,40 @@ export default function HomeSocial() {
             </motion.button>
           ))}
         </div>
+
+        <motion.section
+          className="relative mb-7 min-h-48 overflow-hidden rounded-2xl border border-accent/30 bg-card"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/35 via-card to-background" />
+          <img
+            src={ORB_ART[resume.orb.id]}
+            alt=""
+            className="absolute -right-8 -top-10 h-44 w-44 object-contain opacity-75"
+          />
+          <img
+            src={CHARACTER_ART.action}
+            alt="Personagem de Althea"
+            className="absolute bottom-0 right-2 h-32 w-32 object-contain object-bottom drop-shadow-2xl sm:h-40 sm:w-40"
+          />
+          <div className="relative z-10 flex min-h-48 max-w-[66%] flex-col justify-center p-5">
+            <div className="mb-2 flex items-center gap-1.5 text-accent">
+              <MapPin size={14} />
+              <span className="font-body text-[10px] font-semibold uppercase tracking-wider">Continue de onde parou</span>
+            </div>
+            <h2 className="font-display text-base leading-tight text-foreground">{resume.orb.name}</h2>
+            <p className="mb-4 mt-1 font-body text-xs text-muted-foreground">
+              {resume.label}{resume.challenge ? ` · ${resume.challenge.title}` : ''}
+            </p>
+            <Button
+              onClick={() => navigate(resume.destination)}
+              className="w-fit rounded-full bg-accent px-4 text-accent-foreground hover:bg-accent/90"
+            >
+              Continuar jornada <ArrowRight />
+            </Button>
+          </div>
+        </motion.section>
 
         {/* Feed */}
         <div className="flex items-center justify-between mb-3">
