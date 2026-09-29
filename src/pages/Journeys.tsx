@@ -5,6 +5,7 @@ import { JOURNEY_GAMES, JourneyGame } from '@/data/feedData';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { BottomNav } from '@/components/BottomNav';
 import { Lock, ChevronRight, Star, Trophy, Zap } from 'lucide-react';
+import { ORB_ART, CHARACTER_ART } from '@/lib/journeyAssets';
 
 function GameCard({ game, progress, orbStats }: { 
   game: JourneyGame; 
@@ -28,26 +29,27 @@ function GameCard({ game, progress, orbStats }: {
     >
       {/* Header gradient */}
       <div
-        className="h-20 relative flex items-center px-5"
+        className="h-36 relative flex items-center px-5 overflow-hidden"
         style={{
           background: isActive
             ? `linear-gradient(135deg, hsl(${game.color}), hsl(${game.color} / 0.6))`
             : 'linear-gradient(135deg, hsl(270 20% 20%), hsl(270 15% 15%))',
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/30 to-transparent" />
+        {isActive && <><img src={ORB_ART.purple} alt="" className="absolute -right-6 -top-10 h-48 w-48 object-contain opacity-80" /><img src={CHARACTER_ART.action} alt="Personagem de Althea" className="absolute bottom-0 right-20 h-32 w-32 object-contain object-bottom drop-shadow-2xl" /></>}
         <div className="relative z-10 flex items-center gap-4 w-full">
-          <span className="text-4xl">{game.icon}</span>
+          {!isActive && <span className="text-4xl">{game.icon}</span>}
           <div className="flex-1 min-w-0">
-            <h3 className="font-display text-sm text-white drop-shadow-md">{game.name}</h3>
+            <h3 className="max-w-[60%] font-display text-sm text-foreground drop-shadow-md">{game.name}</h3>
             {!isActive && (
               <div className="flex items-center gap-1 mt-0.5">
-                <Lock size={10} className="text-white/60" />
-                <span className="text-[10px] font-body text-white/60">Em Breve</span>
+                <Lock size={10} className="text-muted-foreground" />
+                <span className="text-[10px] font-body text-muted-foreground">Em Breve</span>
               </div>
             )}
           </div>
-          {isActive && <ChevronRight size={18} className="text-white/70 shrink-0" />}
+          {isActive && <ChevronRight size={18} className="text-foreground/70 shrink-0" />}
         </div>
       </div>
 
