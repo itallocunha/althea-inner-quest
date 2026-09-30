@@ -8,6 +8,8 @@ interface CardDetailModalProps {
   type: 'item' | 'skill' | 'medal';
   data: {
     icon: string;
+    /** Optional illustration shown instead of the emoji. */
+    image?: string;
     name: string;
     description?: string;
     category?: string;
@@ -53,7 +55,7 @@ export function CardDetailModal({ open, onClose, type, data }: CardDetailModalPr
           >
             {/* Art section */}
             <div
-              className="h-48 flex items-center justify-center relative"
+              className={`${data.image ? 'aspect-[713/1000]' : 'h-48'} flex items-center justify-center relative`}
               style={{ background: bgGradient }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/20" />
@@ -70,6 +72,15 @@ export function CardDetailModal({ open, onClose, type, data }: CardDetailModalPr
                 />
               ))}
 
+              {data.image ? (
+                <motion.img
+                  src={data.image}
+                  alt={data.name}
+                  className="h-full w-full object-cover object-center relative z-10"
+                  animate={{ scale: [1, 1.03, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              ) : (
               <motion.span
                 className="text-7xl drop-shadow-2xl relative z-10"
                 animate={{ scale: [1, 1.05, 1] }}
@@ -77,6 +88,7 @@ export function CardDetailModal({ open, onClose, type, data }: CardDetailModalPr
               >
                 {data.icon}
               </motion.span>
+              )}
 
               {/* Close button */}
               <button

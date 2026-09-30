@@ -6,7 +6,7 @@ import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { XPBar } from '@/components/XPBar';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
-import { ORB_ART, CHARACTER_ART } from '@/lib/journeyAssets';
+import { ORB_ART, ORB_CONTINENT_ART, CHARACTER_ART, WORLD_MAP_ART } from '@/lib/journeyAssets';
 import { getJourneyResume } from '@/lib/journeyProgress';
 
 const ORB_THEME = {
@@ -30,8 +30,10 @@ export default function OrbsMap() {
 
   return (
     <div className="min-h-screen overflow-hidden pb-24">
-      <header className="relative border-b border-border bg-card/80 px-4 pb-5 pt-6 backdrop-blur-md">
-        <div className="mx-auto max-w-3xl">
+      <header className="relative overflow-hidden border-b border-border bg-card/80 px-4 pb-5 pt-6 backdrop-blur-md">
+        <img src={WORLD_MAP_ART} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 to-background/90" />
+        <div className="relative mx-auto max-w-3xl">
           <div className="mb-1 flex items-center gap-2"><Map size={18} className="text-accent" /><h1 className="font-display text-xl text-accent">Mapa das Orbes</h1></div>
           <p className="mb-4 font-body text-xs text-muted-foreground">Percorra os cinco territórios da sua jornada interior</p>
           <XPBar />
@@ -64,7 +66,8 @@ export default function OrbsMap() {
                   onClick={() => navigate(`/orb/${orb.id}`)}
                   className={`group relative h-auto w-[92%] max-w-xl justify-start overflow-hidden whitespace-normal rounded-2xl border p-0 text-left ${theme.border} ${theme.glow} ${!unlocked ? 'grayscale' : ''}`}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${theme.wash} via-card to-background`} />
+                  <img src={ORB_CONTINENT_ART[orb.id]} alt={`Território da ${orb.name}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                  <div className={`absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/30`} />
                   <Sparkles className={`absolute right-4 top-4 ${theme.text} opacity-30`} />
                   <div className="relative z-10 flex w-full items-center gap-3 p-4 sm:gap-5 sm:p-5">
                     <div className="relative shrink-0">
@@ -86,7 +89,7 @@ export default function OrbsMap() {
                       </div>
                       <h2 className="font-display text-sm text-foreground sm:text-base">{orb.name}</h2>
                       <p className={`mt-0.5 font-body text-xs ${theme.text}`}>{orb.theme}</p>
-                      <p className="mt-2 line-clamp-2 font-body text-[10px] text-muted-foreground">{orb.focus} · Desenvolve {orb.develops}</p>
+                      <p className="mt-2 line-clamp-2 font-body text-[10px] text-foreground/75">{orb.focus} · Desenvolve {orb.develops}</p>
                       {unlocked && <div className="mt-3"><div className="mb-1 flex justify-between font-body text-[9px] text-muted-foreground"><span>{completed}/{challenges.length} desafios</span><span className={theme.text}>{progress}%</span></div><div className="h-1.5 overflow-hidden rounded-full bg-secondary"><motion.div className={`h-full bg-orb-${orb.id}`} initial={{ width: 0 }} animate={{ width: `${progress}%` }} /></div></div>}
                     </div>
                     {unlocked && <ChevronRight className={`shrink-0 ${theme.text}`} />}

@@ -5,6 +5,7 @@ import { useGame } from '@/context/GameContext';
 import { getChallengesForOrb, ORBS } from '@/data/gameData';
 import { OrbId } from '@/types/game';
 import { useState } from 'react';
+import { ORB_ART, ORB_SHEET_ART } from '@/lib/journeyAssets';
 
 const ORB_ACCENT: Record<string, string> = {
   blue: 'text-blue-400', green: 'text-emerald-400', purple: 'text-purple-400',
@@ -16,6 +17,7 @@ export default function OrbPortfolio() {
   const navigate = useNavigate();
   const { state } = useGame();
   const [selectedChallenge, setSelectedChallenge] = useState<string | null>(null);
+  const [showSheet, setShowSheet] = useState(false);
 
   const orb = ORBS.find(o => o.id === orbId);
   if (!orb) return null;
@@ -34,9 +36,12 @@ export default function OrbPortfolio() {
       </button>
 
       <div className="text-center mb-6">
-        <span className="text-4xl">🔮</span>
+        <img src={ORB_ART[orb.id]} alt={`Arte da ${orb.name}`} className="mx-auto h-28 w-28 object-contain drop-shadow-2xl" />
         <h1 className={`text-xl font-display ${accent} mt-2`}>{orb.name}</h1>
         <p className="text-xs font-body text-muted-foreground">{completedChallenges.length} desafios concluídos</p>
+        <button onClick={() => setShowSheet(true)} className="mt-3 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 font-body text-xs text-accent">
+          Ver ficha de personagem
+        </button>
       </div>
 
       {completedChallenges.length === 0 ? (
@@ -79,6 +84,24 @@ export default function OrbPortfolio() {
           })}
         </div>
       )}
+
+      {/* Character sheet */}
+      <AnimatePresence>
+        {showSheet && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/85 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowSheet(false)}
+          >
+            <img src={ORB_SHEET_ART[orb.id]} alt={`Ficha de personagem da ${orb.name}`} className="max-h-full max-w-full rounded-xl object-contain" />
+            <button aria-label="Fechar ficha" className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10" onClick={() => setShowSheet(false)}>
+              <X size={18} className="text-white" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Detail Modal */}
       <AnimatePresence>

@@ -6,6 +6,8 @@ import { CardDetailModal } from '@/components/CardDetailModal';
 import { ALL_CHALLENGES } from '@/data/gameData';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
+import { OrbId } from '@/types/game';
+import { getMedalArt } from '@/lib/journeyAssets';
 
 const ORB_MEDAL_COLORS: Record<string, { gradient: string; gradientCSS: string; glow: string; border: string; label: string }> = {
   blue: { gradient: 'from-blue-400 via-blue-500 to-blue-700', gradientCSS: 'linear-gradient(135deg, hsl(210 80% 55%), hsl(220 70% 40%))', glow: 'shadow-blue-500/40', border: 'border-blue-400/40', label: 'Azul' },
@@ -19,11 +21,12 @@ const MEDAL_ICONS = ['🏅', '⭐', '🎖️', '🏆', '💫', '✨', '🌟', '�
 
 interface MedalData {
   name: string;
-  orbId: string;
+  orbId: OrbId;
   challenge: string;
   xp: number;
   index: number;
   icon: string;
+  image?: string;
 }
 
 export default function Medals() {
@@ -40,6 +43,7 @@ export default function Medals() {
     xp: c.xpReward,
     index: c.index,
     icon: MEDAL_ICONS[c.index % MEDAL_ICONS.length],
+    image: getMedalArt(c.orbId, c.id),
   }));
   const unlocked = new Set(state.unlockedMedals);
 
@@ -78,6 +82,9 @@ export default function Medals() {
             >
               {isUnlocked ? (
                 <>
+                  {medal.image ? (
+                    <img src={medal.image} alt={`Medalha ${medal.name}`} loading="lazy" className="w-full aspect-[713/1000] object-cover" />
+                  ) : (
                   <div className={`h-24 bg-gradient-to-br ${colors.gradient} flex items-center justify-center relative`}>
                     <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,255,255,0.2),transparent_60%)]" />
@@ -89,6 +96,7 @@ export default function Medals() {
                       {medal.icon}
                     </motion.span>
                   </div>
+                  )}
                   <div className="bg-card p-3">
                     <h3 className="font-display text-[11px] text-accent leading-tight">{medal.name}</h3>
                     <p className="text-[9px] text-muted-foreground font-body mt-1 line-clamp-1">{medal.challenge}</p>
@@ -117,6 +125,7 @@ export default function Medals() {
         type="medal"
         data={selected ? {
           icon: selected.icon,
+          image: selected.image,
           name: selected.name,
           challengeName: selected.challenge,
           xp: selected.xp,

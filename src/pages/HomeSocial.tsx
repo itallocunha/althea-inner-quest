@@ -1,15 +1,14 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
-import { RACE_ICONS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
+import { RACE_LABELS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
 import { MOCK_FEED, FeedPost } from '@/data/feedData';
 import { BottomNav } from '@/components/BottomNav';
 import { Heart, MessageCircle, Share2, Gamepad2, User, Backpack, Trophy, Star, Sparkles, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import heroBg from '@/assets/hero-bg.jpg';
 import { ArrowRight, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ORB_ART, CHARACTER_ART } from '@/lib/journeyAssets';
+import { BACKGROUND_ART, CHARACTER_ART, LOGO_VIDEO, ORB_BACKGROUND_ART, RACE_ART } from '@/lib/journeyAssets';
 import { getJourneyResume } from '@/lib/journeyProgress';
 
 function FeedCard({ post }: { post: FeedPost }) {
@@ -73,27 +72,39 @@ export default function HomeSocial() {
   // If no character, show onboarding splash
   if (!c) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroBg} alt="" className="w-full h-full object-cover opacity-40" />
-          <div className="absolute inset-0 gradient-hero-overlay" />
+      <div className="min-h-screen flex flex-col items-center justify-end pb-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-background">
+          <video
+            src={LOGO_VIDEO}
+            poster={BACKGROUND_ART.logoPulse}
+            autoPlay
+            muted
+            loop
+            playsInline
+            aria-hidden="true"
+            className="h-full w-full object-contain object-[center_8%] sm:object-cover sm:object-center [mask-image:linear-gradient(to_bottom,transparent,black_14%,black_86%,transparent)] sm:[mask-image:none]"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-background via-background/70 to-transparent hidden sm:block" />
+          <div className="absolute inset-x-0 bottom-52 flex justify-center sm:hidden">
+            <motion.img
+              src={CHARACTER_ART.action}
+              alt="Lauro, o guia da jornada"
+              className="h-[34vh] max-h-72 object-contain drop-shadow-[0_0_30px_rgba(255,180,60,0.45)]"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            />
+          </div>
         </div>
         <motion.div
-          className="relative z-10 text-center px-6 max-w-md"
+          className="relative z-10 text-center px-6 max-w-md w-full"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <motion.h1
-            className="text-5xl md:text-6xl font-display font-bold text-accent mb-2"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-          >
-            Althea
-          </motion.h1>
+          <h1 className="sr-only">Althea — Uma Aventura de Autoconhecimento</h1>
           <motion.p
-            className="text-sm text-muted-foreground font-body tracking-widest uppercase mb-12"
+            className="text-sm text-muted-foreground font-body tracking-widest uppercase mb-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
@@ -132,8 +143,8 @@ export default function HomeSocial() {
       <div className="bg-card/80 backdrop-blur-md border-b border-border px-4 pt-4 pb-3">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-2xl glow-primary">
-              {RACE_ICONS[c.race]}
+            <div className="w-12 h-12 rounded-full gradient-primary overflow-hidden glow-primary border border-accent/40">
+              <img src={RACE_ART[c.race].cover} alt={RACE_LABELS[c.race]} className="w-full h-full object-cover object-top" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="font-display text-lg text-accent truncate">{c.name}</h1>
@@ -184,17 +195,12 @@ export default function HomeSocial() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/35 via-card to-background" />
           <img
-            src={ORB_ART[resume.orb.id]}
-            alt=""
-            className="absolute -right-8 -top-10 h-44 w-44 object-contain opacity-75"
+            src={ORB_BACKGROUND_ART[resume.orb.id]}
+            alt={`Lauro diante da ${resume.orb.name}`}
+            className="absolute inset-0 h-full w-full object-cover object-right"
           />
-          <img
-            src={CHARACTER_ART.action}
-            alt="Personagem de Althea"
-            className="absolute bottom-0 right-2 h-32 w-32 object-contain object-bottom drop-shadow-2xl sm:h-40 sm:w-40"
-          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
           <div className="relative z-10 flex min-h-48 max-w-[66%] flex-col justify-center p-5">
             <div className="mb-2 flex items-center gap-1.5 text-accent">
               <MapPin size={14} />

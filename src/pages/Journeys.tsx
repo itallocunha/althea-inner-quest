@@ -5,7 +5,7 @@ import { JOURNEY_GAMES, JourneyGame } from '@/data/feedData';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { BottomNav } from '@/components/BottomNav';
 import { Lock, ChevronRight, Star, Trophy, Zap } from 'lucide-react';
-import { ORB_ART, CHARACTER_ART } from '@/lib/journeyAssets';
+import { CHARACTER_ART, WORLD_MAP_ART } from '@/lib/journeyAssets';
 
 function GameCard({ game, progress, orbStats }: { 
   game: JourneyGame; 
@@ -37,7 +37,7 @@ function GameCard({ game, progress, orbStats }: {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/30 to-transparent" />
-        {isActive && <><img src={ORB_ART.purple} alt="" className="absolute -right-6 -top-10 h-48 w-48 object-contain opacity-80" /><img src={CHARACTER_ART.action} alt="Personagem de Althea" className="absolute bottom-0 right-20 h-32 w-32 object-contain object-bottom drop-shadow-2xl" /></>}
+        {isActive && <><img src={WORLD_MAP_ART} alt="" className="absolute inset-0 -z-0 h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" /><img src={CHARACTER_ART.action} alt="Personagem de Althea" className="absolute bottom-0 right-3 h-32 w-32 object-contain object-bottom drop-shadow-2xl" /></>}
         <div className="relative z-10 flex items-center gap-4 w-full">
           {!isActive && <span className="text-4xl">{game.icon}</span>}
           <div className="flex-1 min-w-0">

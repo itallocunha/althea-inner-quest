@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '@/context/GameContext';
 import {
-  Race, CharacterClass, RACE_LABELS, CLASS_LABELS, RACE_ICONS, CLASS_ICONS,
+  Race, CharacterClass, RACE_LABELS, CLASS_LABELS,
   Attributes, DEFAULT_ATTRIBUTES, ATTRIBUTE_LABELS, AttributeKey,
 } from '@/types/game';
+import { CLASS_ART, RACE_ART } from '@/lib/journeyAssets';
 import { ChevronLeft, ChevronRight, Plus, Minus } from 'lucide-react';
 
 const STEPS = ['Identidade', 'Raça', 'Classe', 'Atributos', 'História'];
@@ -92,18 +93,20 @@ export default function CharacterCreation() {
           {step === 1 && (
             <div className="space-y-4">
               <h2 className="text-2xl font-display text-accent">Escolha sua Raça</h2>
-              <div className="grid grid-cols-2 gap-3">
+              <img src={RACE_ART[race].banner} alt={RACE_LABELS[race]} className="w-full rounded-xl border border-accent/40 shadow-lg shadow-black/40" />
+              <div className="grid grid-cols-3 gap-2">
                 {RACES.map(r => (
                   <motion.button
                     key={r}
                     onClick={() => setRace(r)}
                     whileTap={{ scale: 0.95 }}
-                    className={`p-4 rounded-xl border text-center transition-all ${
-                      race === r ? 'border-accent bg-accent/10 glow-accent' : 'border-border bg-card hover:border-primary'
+                    aria-label={RACE_LABELS[r]}
+                    aria-pressed={race === r}
+                    className={`overflow-hidden rounded-xl border-2 p-0 transition-all ${
+                      race === r ? 'border-accent glow-accent' : 'border-border opacity-70 hover:opacity-100 hover:border-primary'
                     }`}
                   >
-                    <span className="text-3xl block mb-1">{RACE_ICONS[r]}</span>
-                    <span className="text-sm font-display">{RACE_LABELS[r]}</span>
+                    <img src={RACE_ART[r].cover} alt="" loading="lazy" className="aspect-[2/3] w-full object-cover" />
                   </motion.button>
                 ))}
               </div>
@@ -113,18 +116,21 @@ export default function CharacterCreation() {
           {step === 2 && (
             <div className="space-y-4">
               <h2 className="text-2xl font-display text-accent">Escolha sua Classe</h2>
-              <div className="grid grid-cols-1 gap-3">
+              {/* The Paladino banner file is labelled "Draconianos", so classes preview their card instead. */}
+              <img src={CLASS_ART[charClass].card} alt={CLASS_LABELS[charClass]} className="mx-auto w-1/2 rounded-xl shadow-lg shadow-black/50" />
+              <div className="grid grid-cols-3 gap-2">
                 {CLASSES.map(c => (
                   <motion.button
                     key={c}
                     onClick={() => setCharClass(c)}
-                    whileTap={{ scale: 0.97 }}
-                    className={`p-4 rounded-xl border text-left flex items-center gap-4 transition-all ${
-                      charClass === c ? 'border-accent bg-accent/10 glow-accent' : 'border-border bg-card hover:border-primary'
+                    whileTap={{ scale: 0.95 }}
+                    aria-label={CLASS_LABELS[c]}
+                    aria-pressed={charClass === c}
+                    className={`overflow-hidden rounded-xl border-2 p-0 transition-all ${
+                      charClass === c ? 'border-accent glow-accent' : 'border-border opacity-70 hover:opacity-100 hover:border-primary'
                     }`}
                   >
-                    <span className="text-3xl">{CLASS_ICONS[c]}</span>
-                    <span className="font-display">{CLASS_LABELS[c]}</span>
+                    <img src={CLASS_ART[c].cover} alt="" loading="lazy" className="aspect-[2/3] w-full object-cover" />
                   </motion.button>
                 ))}
               </div>
@@ -159,6 +165,10 @@ export default function CharacterCreation() {
           {step === 4 && (
             <div className="space-y-4">
               <h2 className="text-2xl font-display text-accent">Sua História</h2>
+              <div className="flex justify-center gap-3">
+                <img src={RACE_ART[race].card} alt={`Carta de raça: ${RACE_LABELS[race]}`} className="w-[46%] rounded-xl shadow-lg shadow-black/50" />
+                <img src={CLASS_ART[charClass].card} alt={`Carta de classe: ${CLASS_LABELS[charClass]}`} className="w-[46%] rounded-xl shadow-lg shadow-black/50" />
+              </div>
               <p className="text-sm text-muted-foreground font-body">Quem é você? O que te trouxe até aqui? Qual seu maior desafio?</p>
               <textarea
                 value={backstory}

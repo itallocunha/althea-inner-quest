@@ -5,6 +5,7 @@ import { ChevronLeft, Send, Sparkles, Lightbulb, ImagePlus, X, Eye } from 'lucid
 import { useGame } from '@/context/GameContext';
 import { ALL_CHALLENGES } from '@/data/gameData';
 import { ATTRIBUTE_LABELS, AttributeKey } from '@/types/game';
+import { getChallengeArt, getMedalArt } from '@/lib/journeyAssets';
 
 export default function ChallengePage() {
   const { challengeId } = useParams<{ challengeId: string }>();
@@ -47,8 +48,8 @@ export default function ChallengePage() {
           <motion.div key="challenge" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             {/* Challenge Header */}
             <div className="relative rounded-2xl overflow-hidden mb-5">
-              <div className="h-24 bg-gradient-to-br from-primary via-primary/70 to-accent/40 relative">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_60%)]" />
+              <div className="relative">
+                <img src={getChallengeArt(challenge.id)} alt={challenge.title} className="aspect-video w-full object-cover" />
                 <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent" />
               </div>
               <div className="relative -mt-6 px-4 pb-4">
@@ -245,6 +246,16 @@ export default function ChallengePage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
+              {getMedalArt(challenge.orbId, challenge.id) && (
+                <motion.img
+                  src={getMedalArt(challenge.orbId, challenge.id)}
+                  alt={`Medalha ${challenge.medalName}`}
+                  className="mx-auto mb-2 w-44 rounded-2xl border-2 border-accent/40 shadow-xl shadow-black/50"
+                  initial={{ rotateY: 90, scale: 0.6, opacity: 0 }}
+                  animate={{ rotateY: 0, scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', delay: 0.6, stiffness: 120 }}
+                />
+              )}
               <p className="text-sm text-muted-foreground font-body">🏅 Badge: {challenge.medalName}</p>
               <div className="text-xs text-muted-foreground font-body">
                 {Object.entries(challenge.attributeBoosts).map(([k, v]) => (

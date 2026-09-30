@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGame } from '@/context/GameContext';
 import { CoreAttributeKey, AdvancedAttributeKey, CORE_ATTRIBUTE_META, ADVANCED_ATTRIBUTE_META, ATTRIBUTE_MAX, RACE_LABELS, CLASS_LABELS, RACE_ICONS, CLASS_ICONS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
+import { CLASS_ART, ORB_ART, RACE_ART } from '@/lib/journeyAssets';
 import { BottomNav } from '@/components/BottomNav';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { Plus, RotateCcw, ChevronRight, Camera, Sword, Shield, Scroll, BookOpen } from 'lucide-react';
@@ -80,7 +81,8 @@ export default function Profile() {
             <img src={bannerImage} alt="Banner" className="w-full h-full object-cover" />
           ) : (
             <div className="h-full bg-gradient-to-br from-primary via-primary/80 to-accent/30">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.1),transparent_60%)]" />
+              <img src={RACE_ART[c.race].banner} alt="" className="h-full w-full object-cover object-top opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
             </div>
           )}
           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -105,9 +107,7 @@ export default function Profile() {
               {profileImage ? (
                 <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full gradient-primary flex items-center justify-center text-5xl">
-                  {RACE_ICONS[c.race]}
-                </div>
+                <img src={RACE_ART[c.race].cover} alt={RACE_LABELS[c.race]} className="w-full h-full object-cover object-top" />
               )}
             </div>
             <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -140,6 +140,12 @@ export default function Profile() {
               <span className="text-base">{CLASS_ICONS[c.characterClass]}</span>
               <span className="text-[11px] font-display text-accent">{CLASS_LABELS[c.characterClass]}</span>
             </div>
+          </div>
+
+          {/* Race & Class cards */}
+          <div className="flex justify-center gap-3 mb-4">
+            <img src={RACE_ART[c.race].card} alt={`Carta de raça: ${RACE_LABELS[c.race]}`} loading="lazy" className="w-[42%] rounded-xl shadow-lg shadow-black/50" />
+            <img src={CLASS_ART[c.characterClass].card} alt={`Carta de classe: ${CLASS_LABELS[c.characterClass]}`} loading="lazy" className="w-[42%] rounded-xl shadow-lg shadow-black/50" />
           </div>
 
           {/* Artistic Level Display */}
@@ -209,10 +215,11 @@ export default function Profile() {
               transition={{ delay: i * 0.05 }}
             >
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${colors} flex items-center justify-center shrink-0`}>
-                  <span className="text-lg">
-                    {progress === 100 ? '✅' : isUnlocked ? '🔮' : '🔒'}
-                  </span>
+                <div className={`relative w-10 h-10 rounded-lg bg-gradient-to-br ${colors} flex items-center justify-center shrink-0`}>
+                  {isUnlocked
+                    ? <img src={ORB_ART[orb.id]} alt="" className="h-9 w-9 object-contain" />
+                    : <span className="text-lg">🔒</span>}
+                  {progress === 100 && <span className="absolute -bottom-1 -right-1 text-xs">✅</span>}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
