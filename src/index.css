@@ -574,3 +574,100 @@
 .card3d-stage[data-effects=active] .projection-light-rays { animation: projection-orbit 120s linear infinite; }
 .card3d-stage[data-effects=active] .projection-magic-circle svg { animation: projection-orbit 80s linear infinite; }
 .card3d-stage[data-effects=reduced] .projection-aurora,.card3d-stage[data-effects=reduced] .projection-light-rays,.card3d-stage[data-effects=reduced] .projection-magic-circle svg { animation: none; }
+
+/* Shared RPG constellation collections. Colors inherit the five semantic orb tokens. */
+:root {
+  --constellation-background: 225 30% 6%;
+  --constellation-surface: 225 24% 10%;
+  --constellation-line: 220 18% 25%;
+  --constellation-star: 205 48% 82%;
+}
+.constellation-page { position: relative; isolation: isolate; min-height: 100vh; padding-bottom: 110px; background: hsl(var(--constellation-background)); letter-spacing: 0; }
+.constellation-page :is(h1,h2,h3,p,span,button) { letter-spacing: 0; }
+.constellation-atmosphere { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.constellation-stardust { position: absolute; inset: -80px; background-image: radial-gradient(1px 1px at 20% 30%,hsl(var(--constellation-star) / .5) 50%,transparent 100%),radial-gradient(1px 1px at 70% 80%,hsl(var(--constellation-star) / .3) 50%,transparent 100%); background-size: 131px 173px,223px 257px; }
+.constellation-atmosphere i { position: absolute; width: 2px; height: 2px; background: hsl(var(--constellation-star)); opacity: .3; box-shadow: 0 0 8px hsl(var(--constellation-star) / .5); }
+.constellation-atmosphere[data-animated=true] i { animation: constellation-drift var(--drift-duration) var(--drift-delay) ease-in-out infinite; }
+.constellation-atmosphere[data-animated=true] .constellation-stardust { animation: constellation-stars 35s linear infinite alternate; }
+.constellation-header { max-width: 1400px; margin: auto; padding: 22px 36px 20px; }
+.constellation-topline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; color: hsl(var(--muted-foreground)); }
+.constellation-topline > :first-child { padding-left: 0; }
+.constellation-topline button[aria-pressed=true] { color: hsl(var(--accent)); }
+.constellation-eyebrow { font: 12px var(--font-display); color: hsl(var(--accent)); margin-bottom: 10px; }
+.constellation-header h1 { font-size: 32px; line-height: 1.3; text-shadow: none; color: hsl(var(--foreground)); overflow-wrap: anywhere; }
+.constellation-count { margin-top: 12px; color: hsl(var(--muted-foreground)); font-size: 16px; }
+.constellation-content { max-width: 1400px; margin: auto; padding: 0 36px; }
+.constellation-toolbar { display: flex; align-items: center; gap: 24px; border-top: 1px solid hsl(var(--constellation-line)); padding-top: 20px; }
+.constellation-toolbar .archive-search { flex: 1; max-width: 400px; margin: 0; background: hsl(var(--constellation-surface)); color: hsl(var(--muted-foreground)); border-color: hsl(var(--constellation-line)); }
+.constellation-toolbar input { color: hsl(var(--foreground)); }
+.constellation-filters { display: flex; gap: 5px; flex-wrap: wrap; }
+.constellation-filters button { color: hsl(var(--muted-foreground)); }
+.constellation-filters button[aria-pressed=true] { color: hsl(var(--foreground)); background: hsl(var(--secondary)); }
+.constellation-orb-selector { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 24px 0 30px; }
+.constellation-orb-selector .constellation-orb-tab { gap: 7px; padding: 6px 12px; height: 44px; color: hsl(var(--branch-color)); border: 1px solid transparent; }
+.constellation-orb-tab img { width: 28px; height: 28px; object-fit: contain; }
+.constellation-orb-tab[aria-pressed=true] { border-color: hsl(var(--branch-color) / .65); background: hsl(var(--branch-color) / .1); }
+.constellation-orb-selector .constellation-all { color: hsl(var(--muted-foreground)); font-size: 13px; }
+.constellation-all[aria-pressed=true] { color: hsl(var(--foreground)); }
+.skill-forest { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 6px; align-items: end; }
+.skill-forest.is-focused { grid-template-columns: minmax(248px,380px); justify-content: center; }
+.skill-tree { min-width: 0; color: hsl(var(--branch-color)); }
+.skill-tree-heading { text-align: center; min-height: 70px; padding: 0 5px; }
+.skill-tree-heading h2 { font-size: 13px; line-height: 1.5; }
+.skill-tree-heading p { font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 6px; }
+.skill-tree-map { position: relative; }
+.skill-tree-lines { width: 100%; height: 100%; position: absolute; inset: 0; overflow: visible; }
+.skill-tree-lines path { fill: none; stroke: currentColor; stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.skill-tree-lines .skill-trunk { opacity: .4; }
+.skill-tree-lines .skill-junction { fill: currentColor; }
+.skill-tree-lines .is-locked { opacity: .22; }
+.skill-tree-lines .is-earned { filter: drop-shadow(0 0 5px hsl(var(--branch-color) / .6)); }
+.skill-tree-lines .skill-energy { stroke: hsl(var(--foreground)); stroke-width: 2; stroke-dasharray: 3 85; opacity: .8; }
+.constellation-page[data-animated=true] .skill-energy { animation: constellation-energy 4s linear infinite; }
+.skill-node { position: absolute; width: 106px; transform: translate(-50%,-50%); text-align: center; }
+.skill-node .skill-node-button { position: relative; width: 48px; height: 48px; padding: 0; border-radius: 50%; border: 1.5px solid hsl(var(--branch-color) / .8); color: hsl(var(--branch-color)); background: hsl(var(--constellation-background)); box-shadow: 0 0 18px hsl(var(--branch-color) / .17),inset 0 0 10px hsl(var(--branch-color) / .12); transition: transform .2s,box-shadow .2s; }
+.skill-node .skill-node-button > svg:first-child { width: 27px; height: 27px; }
+.skill-node.is-earned .skill-node-button:hover { transform: scale(1.12); box-shadow: 0 0 25px hsl(var(--branch-color) / .5); background: hsl(var(--constellation-surface)); }
+.skill-node.is-locked { color: hsl(var(--muted-foreground)); }
+.skill-node.is-locked .skill-node-button { border-color: hsl(var(--constellation-line)); color: hsl(var(--muted-foreground)); opacity: .55; box-shadow: none; }
+.skill-node-button .skill-lock { position: absolute; bottom: -3px; right: -3px; width: 13px; height: 13px; background: hsl(var(--constellation-background)); }
+.skill-node-button .skill-favorite-star { position: absolute; top: -5px; right: -5px; width: 13px; height: 13px; color: hsl(var(--accent)); }
+.skill-node-name { display: block; margin: 7px auto 0; width: 102px; font-size: 12px; line-height: 1.25; color: hsl(var(--foreground)); overflow-wrap: anywhere; }
+.skill-node.is-locked .skill-node-name { color: hsl(var(--muted-foreground)); }
+.skill-node-kind { display: block; font-size: 10px; margin-top: 3px; opacity: .7; }
+.skill-root { position: absolute; left: 50%; bottom: 0; width: 170px; transform: translateX(-50%); text-align: center; }
+.skill-root img { width: 102px; height: 102px; object-fit: contain; margin: auto; filter: drop-shadow(0 0 14px hsl(var(--branch-color) / .35)); }
+.skill-root span { display: block; font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 5px; min-height: 32px; }
+.constellation-page[data-animated=true] .skill-root img { animation: constellation-orb 6s ease-in-out infinite; }
+.constellation-empty { text-align: center; color: hsl(var(--muted-foreground)); padding: 24px; }
+.medal-columns { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); }
+.medal-columns.is-focused { grid-template-columns: minmax(260px,420px); justify-content: center; }
+.medal-column { min-width: 0; border-right: 1px solid hsl(var(--constellation-line) / .45); padding: 0 15px 24px; color: hsl(var(--branch-color)); background: linear-gradient(180deg,hsl(var(--branch-color) / .07),transparent 80%); }
+.medal-column:last-child { border-right: 0; }
+.medal-orb-heading { text-align: center; min-height: 220px; padding-top: 8px; }
+.medal-orb-heading img { width: 110px; height: 110px; object-fit: contain; margin: 0 auto 15px; filter: drop-shadow(0 0 15px hsl(var(--branch-color) / .35)); }
+.constellation-page[data-animated=true] .medal-orb-heading img { animation: constellation-orb 6s ease-in-out infinite; }
+.medal-orb-heading h2 { font-size: 14px; line-height: 1.5; }
+.medal-orb-heading p { font-size: 12px; color: hsl(var(--muted-foreground)); min-height: 32px; margin-top: 6px; }
+.medal-orb-heading > span { font-size: 11px; }
+.medal-orb-progress { height: 2px; background: hsl(var(--constellation-line)); margin: 12px auto 28px; width: 70%; }
+.medal-orb-progress i { display: block; height: 100%; background: currentColor; box-shadow: 0 0 8px hsl(var(--branch-color) / .5); }
+.medal-rune-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 12px; position: relative; }
+.medal-rune { position: relative; text-align: center; min-height: 135px; padding-top: 14px; }
+.medal-rune::before { content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 16px; background: hsl(var(--branch-color) / .3); }
+.medal-rune .medal-rune-button { position: relative; width: 57px; height: 57px; padding: 0; border-radius: 50%; color: hsl(var(--branch-color)); border: 1px solid hsl(var(--branch-color) / .65); background: hsl(var(--constellation-background)); box-shadow: 0 0 18px hsl(var(--branch-color) / .25),inset 0 0 18px hsl(var(--branch-color) / .14); transition: transform .2s,box-shadow .2s; }
+.medal-rune-button > svg { width: 34px; height: 34px; filter: drop-shadow(0 0 5px hsl(var(--branch-color) / .5)); }
+.medal-rune.is-earned .medal-rune-button:hover { transform: translateY(-3px) scale(1.1); color: hsl(var(--branch-color)); background: hsl(var(--constellation-surface)); box-shadow: 0 0 30px hsl(var(--branch-color) / .4); }
+.medal-rune.is-locked .medal-rune-button { opacity: .4; box-shadow: none; border-color: hsl(var(--constellation-line)); }
+.medal-rune-status { position: absolute; bottom: -4px; right: -3px; border-radius: 50%; background: hsl(var(--constellation-background)); padding: 3px; }
+.medal-rune-status svg { width: 12px; height: 12px; }
+.medal-rune h3 { font: 12px/1.35 var(--font-body); color: hsl(var(--foreground)); margin-top: 11px; overflow-wrap: anywhere; }
+.medal-rune.is-locked h3 { color: hsl(var(--muted-foreground)); }
+.medal-rune-xp { display: block; font-size: 10px; margin-top: 5px; }
+@keyframes constellation-drift { 0%,100% { transform: translateY(0); opacity: .15; } 50% { transform: translate(12px,-45px); opacity: .7; } }
+@keyframes constellation-stars { to { transform: translateY(60px); } }
+@keyframes constellation-energy { to { stroke-dashoffset: -176; } }
+@keyframes constellation-orb { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (max-width: 1050px) { .skill-forest { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 30px 10px; }.medal-columns { grid-template-columns: repeat(3,minmax(0,1fr)); row-gap: 36px; }.skill-tree-heading h2 { font-size: 14px; } }
+@media (max-width: 650px) { .constellation-header { padding: 18px 18px 20px; }.constellation-content { padding: 0 18px; }.constellation-header h1 { font-size: 25px; }.constellation-topline { margin-bottom: 24px; }.constellation-toolbar { flex-direction: column; align-items: stretch; gap: 12px; }.constellation-toolbar .archive-search { max-width: none; }.constellation-orb-selector { gap: 2px; margin: 18px 0 24px; }.constellation-orb-selector .constellation-all { flex-basis: 100%; justify-content: flex-start; }.constellation-orb-selector .constellation-orb-tab { padding: 6px; gap: 3px; font-size: 11px; }.constellation-orb-tab img { width: 22px; height: 22px; }.skill-forest { grid-template-columns: minmax(0,360px); justify-content: center; gap: 38px; }.skill-tree-heading { min-height: 60px; }.medal-columns { grid-template-columns: repeat(2,minmax(0,1fr)); }.medal-column { padding: 0 8px 20px; }.medal-rune-grid { gap: 20px 6px; }.medal-orb-heading h2 { font-size: 12px; }.medal-rune h3 { font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .constellation-page *, .constellation-page *::before { animation: none !important; transition: none !important; } }
