@@ -1,138 +1,63 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { Navigate } from 'react-router-dom';
+import { useReducedMotion } from 'framer-motion';
+import { Lock, Check } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
 import { BottomNav } from '@/components/BottomNav';
 import { CardDetailModal } from '@/components/CardDetailModal';
-import { ALL_CHALLENGES } from '@/data/gameData';
-import { useNavigate } from 'react-router-dom';
-import { RpgIcon } from '@/components/rpg/RpgIcon';
-import { PageHeader, XpMeter } from '@/components/rpg/Ornaments';
-import { OrbId } from '@/types/game';
-import { getMedalArt } from '@/lib/journeyAssets';
+import { ConstellationAtmosphere, ConstellationHeader, OrbSelector, orbStyle } from '@/components/rpg/ConstellationUI';
+import { Button } from '@/components/ui/button';
+import { RpgIcon, type RpgIconName } from '@/components/rpg/RpgIcon';
+import { ALL_CHALLENGES, ORBS } from '@/data/gameData';
+import { ORB_ART, getMedalArt } from '@/lib/journeyAssets';
+import type { Challenge, OrbId } from '@/types/game';
 
-const ORB_MEDAL_COLORS: Record<string, { gradient: string; gradientCSS: string; glow: string; border: string; label: string }> = {
-  blue: { gradient: 'from-blue-400 via-blue-500 to-blue-700', gradientCSS: 'linear-gradient(135deg, hsl(210 80% 55%), hsl(220 70% 40%))', glow: 'shadow-blue-500/40', border: 'border-blue-400/40', label: 'Azul' },
-  green: { gradient: 'from-emerald-400 via-emerald-500 to-emerald-700', gradientCSS: 'linear-gradient(135deg, hsl(140 60% 45%), hsl(150 50% 30%))', glow: 'shadow-emerald-500/40', border: 'border-emerald-400/40', label: 'Verde' },
-  purple: { gradient: 'from-purple-400 via-purple-500 to-purple-700', gradientCSS: 'linear-gradient(135deg, hsl(270 60% 50%), hsl(280 50% 35%))', glow: 'shadow-purple-500/40', border: 'border-purple-400/40', label: 'Roxa' },
-  red: { gradient: 'from-red-400 via-rose-500 to-red-700', gradientCSS: 'linear-gradient(135deg, hsl(0 70% 55%), hsl(350 60% 35%))', glow: 'shadow-red-500/40', border: 'border-red-400/40', label: 'Vermelha' },
-  yellow: { gradient: 'from-yellow-300 via-amber-400 to-amber-600', gradientCSS: 'linear-gradient(135deg, hsl(45 100% 65%), hsl(35 90% 40%))', glow: 'shadow-amber-500/40', border: 'border-amber-400/40', label: 'Amarela' },
-};
-
-const MEDAL_ICONS = ['🏅', '⭐', '🎖️', '🏆', '💫', '✨', '🌟', '🔱', '👑', '💎'];
-
-interface MedalData {
-  name: string;
-  orbId: OrbId;
-  challenge: string;
-  xp: number;
-  index: number;
-  icon: string;
-  image?: string;
-}
+const MEDAL_RUNES: RpgIconName[] = ['mirror', 'quill', 'eye', 'star', 'shield', 'tree', 'compass', 'flame', 'wings', 'crown'];
 
 export default function Medals() {
-  const navigate = useNavigate();
   const { state } = useGame();
+  const reduced = useReducedMotion();
+  const [animated, setAnimated] = useState(true);
+  const [orbFilter, setOrbFilter] = useState<OrbId | null>(null);
   const [origin, setOrigin] = useState<DOMRect | null>(null);
-  const [selected, setSelected] = useState<MedalData | null>(null);
-
-  if (!state.character) { navigate('/'); return null; }
-
-  const allMedalData: MedalData[] = ALL_CHALLENGES.map(c => ({
-    name: c.medalName,
-    orbId: c.orbId,
-    challenge: c.title,
-    xp: c.xpReward,
-    index: c.index,
-    icon: MEDAL_ICONS[c.index % MEDAL_ICONS.length],
-    image: getMedalArt(c.orbId, c.id),
-  }));
+  const [selected, setSelected] = useState<Challenge | null>(null);
+  if (!state.character) return <Navigate to="/" replace />;
   const unlocked = new Set(state.unlockedMedals);
-
-  return (
-    <div className="min-h-screen pb-28 px-4 pt-8 max-w-md mx-auto">
-      <PageHeader title="Salão de Medalhas" subtitle={`${unlocked.size} de ${allMedalData.length} honrarias conquistadas`} icon="medal" />
-
-      <div className="mb-6">
-        <XpMeter percent={(unlocked.size / allMedalData.length) * 100} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {allMedalData.map((medal, i) => {
-          const isUnlocked = unlocked.has(medal.name);
-          const colors = ORB_MEDAL_COLORS[medal.orbId] || ORB_MEDAL_COLORS.blue;
-
-          return (
-            <motion.button
-              key={i}
-              className={`relative text-left rounded-2xl overflow-hidden cursor-pointer ${
-                isUnlocked ? `border-2 ${colors.border} shadow-lg ${colors.glow}` : 'border border-border'
-              }`}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.03, type: 'spring', stiffness: 200 }}
-              whileHover={isUnlocked ? { scale: 1.05, y: -2 } : {}}
-              disabled={!isUnlocked}
-              aria-label={`Inspecionar medalha ${medal.name}`}
-              onClick={event => { setOrigin(event.currentTarget.getBoundingClientRect()); setSelected(medal); }}
-            >
-              {isUnlocked ? (
-                <>
-                  {medal.image ? (
-                    <img src={medal.image} alt={`Medalha ${medal.name}`} loading="lazy" className="w-full aspect-[713/1000] object-cover" />
-                  ) : (
-                  <div className={`h-24 bg-gradient-to-br ${colors.gradient} flex items-center justify-center relative`}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,255,255,0.2),transparent_60%)]" />
-                    <motion.span
-                      className="text-4xl drop-shadow-lg relative z-10"
-                      animate={{ rotateY: [0, 360] }}
-                      transition={{ duration: 3, repeat: Infinity, repeatDelay: 5, ease: 'easeInOut' }}
-                    >
-                      {medal.icon}
-                    </motion.span>
-                  </div>
-                  )}
-                  <div className="bg-card p-3">
-                    <h3 className="font-display text-[11px] text-accent leading-tight">{medal.name}</h3>
-                    <p className="text-[9px] text-muted-foreground font-body mt-1 line-clamp-1">{medal.challenge}</p>
-                    <div className="mt-2 pt-1.5 border-t border-border flex items-center justify-between">
-                      <span className="text-[8px] font-body text-accent">+{medal.xp} XP</span>
-                      <span className="text-[8px] font-body text-muted-foreground uppercase tracking-wider">{colors.label}</span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="h-full bg-card/50 flex flex-col items-center justify-center py-8 px-3 text-center">
-                  <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-2">
-                    <RpgIcon name="lock" size={18} className="text-muted-foreground" />
-                  </div>
-                  <span className="text-[9px] font-body text-muted-foreground leading-tight">{medal.name}</span>
-                </div>
-              )}
-            </motion.button>
-          );
+  const visibleOrbs = ORBS.filter(orb => !orbFilter || orb.id === orbFilter);
+  return <div className="constellation-page medal-hall" data-animated={animated && !reduced}>
+    <ConstellationAtmosphere animated={animated && !reduced} />
+    <ConstellationHeader title="Salão de Medalhas" eyebrow="Cinco Orbes · Uma trajetória" count={`${unlocked.size} de ${ALL_CHALLENGES.length} honrarias conquistadas`} animated={animated && !reduced} onToggle={() => setAnimated(value => !value)} />
+    <main className="constellation-content">
+      <OrbSelector selected={orbFilter} onSelect={setOrbFilter} />
+      <div className={`medal-columns ${orbFilter ? 'is-focused' : ''}`}>
+        {visibleOrbs.map(orb => {
+          const medals = ALL_CHALLENGES.filter(challenge => challenge.orbId === orb.id);
+          const count = medals.filter(challenge => unlocked.has(challenge.medalName)).length;
+          return <section key={orb.id} className="medal-column" style={orbStyle(orb.id)} aria-label={`Medalhas da ${orb.name}`}>
+            <header className="medal-orb-heading">
+              <img src={ORB_ART[orb.id]} alt={`Orbe ${orb.name}`} />
+              <h2>{orb.name}</h2><p>{orb.focus}</p>
+              <span>{count} / {medals.length} conquistadas</span>
+              <div className="medal-orb-progress" role="progressbar" aria-label={`Progresso da ${orb.name}`} aria-valuenow={count} aria-valuemin={0} aria-valuemax={medals.length}><i style={{ width: `${count / medals.length * 100}%` }} /></div>
+            </header>
+            <div className="medal-rune-grid">
+              {medals.map(medal => {
+                const isUnlocked = unlocked.has(medal.medalName);
+                return <div key={medal.id} className={`medal-rune ${isUnlocked ? 'is-earned' : 'is-locked'}`}>
+                  <Button variant="ghost" className="medal-rune-button" disabled={!isUnlocked} aria-label={`Inspecionar medalha ${medal.medalName}`} title={isUnlocked ? medal.medalName : `${medal.medalName} · ${medal.title}`} onClick={event => { setOrigin(event.currentTarget.getBoundingClientRect()); setSelected(medal); }}>
+                    <RpgIcon name={MEDAL_RUNES[medal.index % MEDAL_RUNES.length]} size={34} />
+                    <span className="medal-rune-status">{isUnlocked ? <Check /> : <Lock />}</span>
+                  </Button>
+                  <h3>{medal.medalName}</h3>
+                  <span className="medal-rune-xp">{isUnlocked ? `+${medal.xpReward} XP` : `Desafio ${medal.index + 1}`}</span>
+                </div>;
+              })}
+            </div>
+          </section>;
         })}
       </div>
-
-      <CardDetailModal
-        origin={origin}
-        open={!!selected}
-        onClose={() => setSelected(null)}
-        type="medal"
-        data={selected ? {
-          orbId: selected.orbId,
-          icon: selected.icon,
-          image: selected.image,
-          name: selected.name,
-          challengeName: selected.challenge,
-          xp: selected.xp,
-          orbLabel: ORB_MEDAL_COLORS[selected.orbId]?.label || '',
-          gradient: ORB_MEDAL_COLORS[selected.orbId]?.gradientCSS || '',
-        } : null}
-      />
-
-      <BottomNav />
-    </div>
-  );
+    </main>
+    <CardDetailModal origin={origin} open={!!selected} onClose={() => setSelected(null)} type="medal" data={selected ? { orbId: selected.orbId, icon: '🏅', image: getMedalArt(selected.orbId, selected.id), name: selected.medalName, challengeName: selected.title, xp: selected.xpReward, orbLabel: ORBS.find(orb => orb.id === selected.orbId)?.name } : null} />
+    <BottomNav />
+  </div>;
 }
