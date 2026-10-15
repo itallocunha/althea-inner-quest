@@ -4,6 +4,7 @@ import { useGame } from '@/context/GameContext';
 import { JOURNEY_GAMES, JourneyGame } from '@/data/feedData';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { BottomNav } from '@/components/BottomNav';
+import { PageHeader } from '@/components/rpg/Ornaments';
 import { Lock, ChevronRight, Star, Trophy, Zap } from 'lucide-react';
 import { CHARACTER_ART, WORLD_MAP_ART } from '@/lib/journeyAssets';
 
@@ -117,11 +118,8 @@ export default function Journeys() {
   const currentOrb = ORBS[Math.min(state.currentOrbIndex, ORBS.length - 1)];
 
   return (
-    <div className="min-h-screen pb-20 px-4 pt-6 max-w-lg mx-auto">
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-display text-accent mb-1">Jornadas</h1>
-        <p className="text-xs font-body text-muted-foreground">Escolha sua próxima aventura evolutiva</p>
-      </div>
+    <div className="min-h-screen pb-28 px-4 pt-8 max-w-lg mx-auto">
+      <PageHeader title="Jornadas" subtitle="Escolha sua próxima aventura evolutiva" icon="sword" />
 
       <div className="space-y-4">
         {JOURNEY_GAMES.map((game, i) => (

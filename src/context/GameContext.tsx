@@ -3,6 +3,7 @@ import { GameState, CharacterData, CharacterStory, ChallengeProgress, ItemCard, 
 import { getChallengesForOrb, ORBS } from '@/data/gameData';
 
 interface GameContextType {
+  toggleFavoriteCard: (id: string) => void;
   state: GameState;
   createCharacter: (data: CharacterData) => void;
   completeChallenge: (challengeId: string, response?: string, imageUrl?: string) => void;
@@ -117,6 +118,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
+  const toggleFavoriteCard = useCallback((id: string) => {
+    setState(prev => {
+      if (![...prev.itemCards, ...prev.skillCards].some(card => card.id === id)) return prev;
+      const favorites = prev.favoriteCardIds || [];
+      return { ...prev, favoriteCardIds: favorites.includes(id) ? favorites.filter(value => value !== id) : [...favorites, id] };
+    });
+  }, []);
+
   const addStory = useCallback((title: string, content: string) => {
     setState(prev => ({
       ...prev,
@@ -172,7 +181,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, [state.challengeProgress]);
 
   return (
-    <GameContext.Provider value={{ state, createCharacter, completeChallenge, distributePoints, resetGame, addStory, editStory, deleteStory, reorderStories, getOrbProgress, isOrbUnlocked, isChallengeUnlocked, isChallengeCompleted }}>
+    <GameContext.Provider value={{ state, toggleFavoriteCard, createCharacter, completeChallenge, distributePoints, resetGame, addStory, editStory, deleteStory, reorderStories, getOrbProgress, isOrbUnlocked, isChallengeUnlocked, isChallengeCompleted }}>
       {children}
     </GameContext.Provider>
   );

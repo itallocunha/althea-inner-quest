@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+dist-artifact
+
+# Generated Windows launcher (rebuild with npm run launcher:build)
+/Iniciar Althea.exe
+/scripts/launcher/althea.ico

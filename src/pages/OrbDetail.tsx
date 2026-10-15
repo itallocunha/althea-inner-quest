@@ -1,7 +1,9 @@
 import { Fragment, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, Check, ChevronLeft, FileText, ImageIcon, Lock, MapPin, Sparkles } from 'lucide-react';
+import { BookOpen, Check, ChevronLeft, FileText, ImageIcon, Sparkles } from 'lucide-react';
+import { RpgIcon } from '@/components/rpg/RpgIcon';
+import { OrnateDivider } from '@/components/rpg/Ornaments';
 import { useGame } from '@/context/GameContext';
 import { getChallengesForOrb, getOrbStory, ORBS } from '@/data/gameData';
 import { OrbId } from '@/types/game';
@@ -63,7 +65,7 @@ export default function OrbDetail() {
           <div className="relative flex min-h-48 items-center">
             <div className="relative z-10 max-w-[62%]">
               <div className={`mb-2 flex items-center gap-1.5 ${theme.accent}`}><Sparkles size={14} /><span className="font-body text-[9px] font-semibold uppercase tracking-wider">Território da jornada</span></div>
-              <h1 className={`font-display text-xl leading-tight sm:text-2xl ${theme.accent}`}>{orb.name}</h1>
+              <h1 className={`font-title text-lg font-bold leading-tight sm:text-2xl ${theme.accent}`}>{orb.name}</h1>
               <p className="mt-1 font-body text-xs text-foreground">{orb.theme}</p>
               <p className="mt-2 line-clamp-2 font-body text-[10px] text-muted-foreground">{orb.focus}</p>
             </div>
@@ -80,7 +82,8 @@ export default function OrbDetail() {
 
         {showStory && story && <motion.section className="mb-7 space-y-4 border-y border-border py-5" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}><img src={ORB_STORY_ART[orb.id]} alt={story.fragmentTitle} loading="lazy" className={`w-full rounded-2xl border ${theme.border}`} /><p className="whitespace-pre-line font-body text-sm leading-relaxed text-foreground/90">{story.story}</p><div><h2 className={`mb-2 font-display text-[10px] uppercase tracking-wider ${theme.accent}`}>O que você vai aprender</h2><ul className="space-y-1">{story.learningObjectives.map(objective => <li key={objective} className="flex gap-2 font-body text-xs text-muted-foreground"><span className={theme.accent}>◆</span>{objective}</li>)}</ul></div>{progress === 100 && <div className={`border-l-2 pl-4 ${theme.border}`}><p className="font-body text-sm italic text-foreground">“{story.reflectionPoint}”</p><p className={`mt-3 font-display text-xs ${theme.accent}`}>{story.completionSkill.icon} {story.completionSkill.name}</p><p className="font-body text-xs text-muted-foreground">{story.completionSkill.description}</p></div>}</motion.section>}
 
-        <div className="mb-5 flex items-end justify-between"><div><div className={`flex items-center gap-1.5 ${theme.accent}`}><MapPin size={14} /><span className="font-body text-[9px] uppercase tracking-wider">Trilha da Orbe</span></div><h2 className="mt-1 font-display text-base text-foreground">Seu caminho de desafios</h2></div><span className="font-body text-[10px] text-muted-foreground">Siga os pontos</span></div>
+        <div className="mb-5 flex items-end justify-between"><div><div className={`flex items-center gap-1.5 ${theme.accent}`}><RpgIcon name="map" size={16} /><span className="font-display text-[10px] font-bold uppercase tracking-[0.2em]">Trilha da Orbe</span></div><h2 className="text-gold mt-1 font-title text-lg font-bold">Seu caminho de desafios</h2></div><span className="font-body text-xs text-muted-foreground">Siga os pontos</span></div>
+        <OrnateDivider className="mb-6" />
 
         <section className="relative mx-auto max-w-xl pb-8">
           <div className={`absolute bottom-12 left-1/2 top-10 w-0.5 -translate-x-1/2 ${theme.line}`} />
@@ -99,7 +102,7 @@ export default function OrbDetail() {
                   <Button variant="ghost" disabled={!unlocked} onClick={() => navigate(`/challenge/${challenge.id}`)} className={`group relative z-10 h-auto w-[82%] flex-col items-stretch overflow-hidden whitespace-normal rounded-xl border p-0 text-left ${completed ? `${theme.border} bg-card` : unlocked ? 'border-border bg-card hover:border-accent/50' : 'border-border/50 bg-card/50'}`}>
                     <img src={getChallengeArt(challenge.id)} alt={`Desafio ${index + 1}: ${challenge.title}`} loading="lazy" className={`aspect-video w-full object-cover ${unlocked ? '' : 'grayscale'}`} />
                     <div className={`flex items-center gap-3 p-3 ${completed ? theme.bg : ''}`}>
-                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border font-display text-xs ${completed ? `${theme.node} ${theme.border}` : unlocked ? `${theme.bg} ${theme.accent} ${theme.border}` : 'border-border bg-secondary text-muted-foreground'}`}>{completed ? <Check size={17} /> : unlocked ? index + 1 : <Lock size={13} />}</span>
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border font-display text-xs ${completed ? `${theme.node} ${theme.border}` : unlocked ? `${theme.bg} ${theme.accent} ${theme.border}` : 'border-border bg-secondary text-muted-foreground'}`}>{completed ? <Check size={17} /> : unlocked ? index + 1 : <RpgIcon name="lock" size={15} />}</span>
                       <span className="min-w-0 flex-1"><span className="block font-display text-xs leading-tight text-foreground">{challenge.title}</span><span className="mt-1 flex gap-2 font-body text-[9px] text-muted-foreground"><span>+{challenge.xpReward} XP</span>{challenge.cardReward && <span className={theme.accent}>{challenge.cardReward.icon} Carta</span>}</span></span>
                       {completed && <span className="flex shrink-0 gap-1">{progressEntry?.imageUrl && <ImageIcon size={12} className={theme.accent} />}{progressEntry?.response && <FileText size={12} className={theme.accent} />}</span>}
                     </div>

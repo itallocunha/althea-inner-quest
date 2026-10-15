@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '@/context/GameContext';
-import { RACE_LABELS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
+import { CLASS_LABELS, RACE_LABELS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
 import { MOCK_FEED, FeedPost } from '@/data/feedData';
 import { BottomNav } from '@/components/BottomNav';
-import { Heart, MessageCircle, Share2, Gamepad2, User, Backpack, Trophy, Star, Sparkles, TrendingUp } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Trophy, Star, Sparkles, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import { ArrowRight, MapPin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
+import { LevelMedallion, OrnateDivider, XpMeter } from '@/components/rpg/Ornaments';
+import { RpgIcon, RpgIconName } from '@/components/rpg/RpgIcon';
 import { BACKGROUND_ART, CHARACTER_ART, LOGO_VIDEO, ORB_BACKGROUND_ART, RACE_ART } from '@/lib/journeyAssets';
 import { getJourneyResume } from '@/lib/journeyProgress';
 
@@ -131,67 +132,58 @@ export default function HomeSocial() {
   const xpPercent = (currentXP / XP_PER_LEVEL) * 100;
   const resume = getJourneyResume(state);
 
-  const quickActions = [
-    { icon: Gamepad2, label: 'Jogar', to: '/journeys', accent: true },
-    { icon: User, label: 'Perfil', to: '/profile', accent: false },
-    { icon: Backpack, label: 'Inventário', to: '/inventory', accent: false },
+  const quickActions: { icon: RpgIconName; label: string; to: string; accent: boolean }[] = [
+    { icon: 'sword', label: 'Jogar', to: '/journeys', accent: true },
+    { icon: 'helm', label: 'Herói', to: '/profile', accent: false },
+    { icon: 'chest', label: 'Inventário', to: '/inventory', accent: false },
   ];
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-24">
       {/* Header */}
-      <div className="bg-card/80 backdrop-blur-md border-b border-border px-4 pt-4 pb-3">
+      <div className="relative border-b border-[hsl(var(--gold-deep)/0.8)] bg-gradient-to-b from-[hsl(268_42%_15%/0.95)] to-[hsl(266_48%_9%/0.9)] px-4 pt-4 pb-3 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.9)] backdrop-blur-md">
+        <span className="pointer-events-none absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold))] to-transparent" />
         <div className="max-w-lg mx-auto">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-full gradient-primary overflow-hidden glow-primary border border-accent/40">
-              <img src={RACE_ART[c.race].cover} alt={RACE_LABELS[c.race]} className="w-full h-full object-cover object-top" />
-            </div>
+          <div className="flex items-center gap-4 mb-3">
+            <LevelMedallion level={c.level} src={RACE_ART[c.race].cover} alt={RACE_LABELS[c.race]} size={60} />
             <div className="flex-1 min-w-0">
-              <h1 className="font-display text-lg text-accent truncate">{c.name}</h1>
-              <p className="text-xs text-muted-foreground font-body">Nível {c.level}</p>
+              <h1 className="text-gold font-title text-xl font-bold leading-tight truncate">{c.name}</h1>
+              <p className="font-display text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                {RACE_LABELS[c.race]} · {CLASS_LABELS[c.characterClass]}
+              </p>
             </div>
           </div>
-          {/* XP Bar */}
-          <div className="w-full">
-            <div className="flex justify-between mb-1">
-              <span className="text-[10px] font-body text-muted-foreground">XP Global</span>
-              <span className="text-[10px] font-body text-accent">{currentXP}/{XP_PER_LEVEL}</span>
-            </div>
-            <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-              <motion.div
-                className="h-full gradient-accent rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${xpPercent}%` }}
-                transition={{ duration: 0.8 }}
-              />
-            </div>
-          </div>
+          <XpMeter percent={xpPercent} label="Experiência" value={`${currentXP}/${XP_PER_LEVEL}`} />
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 pt-4">
+      <div className="max-w-lg mx-auto px-4 pt-5">
         {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-2 mb-6">
-          {quickActions.map(({ icon: Icon, label, to, accent }) => (
+        <div className="grid grid-cols-3 gap-3 mb-7">
+          {quickActions.map(({ icon, label, to, accent }) => (
             <motion.button
               key={to}
               onClick={() => navigate(to)}
-              className={`py-3 rounded-xl flex flex-col items-center gap-1.5 font-body text-xs ${
+              className={`flex flex-col items-center gap-2 rounded-2xl py-3 font-display text-[11px] font-bold uppercase tracking-[0.14em] ${
                 accent
-                  ? 'gradient-accent text-accent-foreground font-semibold glow-accent'
+                  ? 'gradient-accent text-accent-foreground'
                   : 'bg-card border border-border text-foreground'
               }`}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.96 }}
             >
-              <Icon size={20} />
+              {accent ? (
+                <RpgIcon name={icon} size={26} strokeWidth={1.9} />
+              ) : (
+                <span className="rune-socket-square h-9 w-9"><RpgIcon name={icon} size={20} /></span>
+              )}
               {label}
             </motion.button>
           ))}
         </div>
 
         <motion.section
-          className="relative mb-7 min-h-48 overflow-hidden rounded-2xl border border-accent/30 bg-card"
+          className="rpg-frame relative mb-8 min-h-52 overflow-hidden rounded-2xl"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -201,28 +193,28 @@ export default function HomeSocial() {
             className="absolute inset-0 h-full w-full object-cover object-right"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
-          <div className="relative z-10 flex min-h-48 max-w-[66%] flex-col justify-center p-5">
+          <div className="relative z-10 flex min-h-52 max-w-[68%] flex-col justify-center p-6">
             <div className="mb-2 flex items-center gap-1.5 text-accent">
-              <MapPin size={14} />
-              <span className="font-body text-[10px] font-semibold uppercase tracking-wider">Continue de onde parou</span>
+              <RpgIcon name="map" size={15} />
+              <span className="font-display text-[10px] font-bold uppercase tracking-[0.2em]">Missão em andamento</span>
             </div>
-            <h2 className="font-display text-base leading-tight text-foreground">{resume.orb.name}</h2>
-            <p className="mb-4 mt-1 font-body text-xs text-muted-foreground">
+            <h2 className="text-gold font-title text-lg font-bold leading-tight">{resume.orb.name}</h2>
+            <p className="mb-4 mt-1 font-body text-sm text-foreground/80">
               {resume.label}{resume.challenge ? ` · ${resume.challenge.title}` : ''}
             </p>
-            <Button
+            <button
               onClick={() => navigate(resume.destination)}
-              className="w-fit rounded-full bg-accent px-4 text-accent-foreground hover:bg-accent/90"
+              className="gradient-accent flex w-fit items-center gap-2 rounded-full px-5 py-2 font-display text-xs font-bold uppercase tracking-[0.14em] text-accent-foreground"
             >
-              Continuar jornada <ArrowRight />
-            </Button>
+              Continuar <ArrowRight size={15} />
+            </button>
           </div>
         </motion.section>
 
         {/* Feed */}
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-display text-accent text-sm">Comunidade</h2>
-          <span className="text-[10px] text-muted-foreground font-body">Recentes</span>
+        <div className="mb-4">
+          <h2 className="text-gold text-center font-title text-lg font-bold">Crônicas da Guilda</h2>
+          <OrnateDivider className="mt-2" />
         </div>
         <div className="space-y-3">
           {MOCK_FEED.map((post, i) => (

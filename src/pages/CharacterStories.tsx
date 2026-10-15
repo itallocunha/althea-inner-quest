@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { useGame } from '@/context/GameContext';
 import { BottomNav } from '@/components/BottomNav';
-import { Plus, Save, X, Pencil, Trash2, GripVertical, BookOpen } from 'lucide-react';
+import { Plus, Save, X, Pencil, Trash2, GripVertical } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CharacterStory } from '@/types/game';
+import { PageHeader } from '@/components/rpg/Ornaments';
 
 export default function CharacterStories() {
   const navigate = useNavigate();
@@ -54,26 +55,18 @@ export default function CharacterStories() {
   };
 
   return (
-    <div className="min-h-screen pb-20 px-4 pt-6 max-w-md mx-auto">
+    <div className="min-h-screen pb-28 px-4 pt-8 max-w-md mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-display text-accent flex items-center gap-2">
-            <BookOpen size={24} /> Crônicas
-          </h1>
-          <p className="text-xs text-muted-foreground font-body mt-1">
-            As histórias do seu personagem
-          </p>
-        </div>
+      <PageHeader title="Crônicas" subtitle="As histórias do seu personagem" icon="quill">
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-1.5 text-xs font-body text-accent-foreground bg-accent rounded-full px-4 py-2"
+            className="gradient-accent mx-auto mt-4 flex items-center gap-1.5 rounded-full px-5 py-2 font-display text-xs font-bold uppercase tracking-wider text-accent-foreground"
           >
             <Plus size={14} /> Nova História
           </button>
         )}
-      </div>
+      </PageHeader>
 
       {/* Form */}
       <AnimatePresence>

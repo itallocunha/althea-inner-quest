@@ -6,6 +6,8 @@ import { useGame } from '@/context/GameContext';
 import { ALL_CHALLENGES } from '@/data/gameData';
 import { ATTRIBUTE_LABELS, AttributeKey } from '@/types/game';
 import { getChallengeArt, getMedalArt } from '@/lib/journeyAssets';
+import { Card3DViewer, type Card3DData } from '@/components/rpg/Card3DViewer';
+import { getRewardProjection } from '@/lib/collectionPresentation';
 
 export default function ChallengePage() {
   const { challengeId } = useParams<{ challengeId: string }>();
@@ -15,6 +17,8 @@ export default function ChallengePage() {
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [showReward, setShowReward] = useState(false);
   const [previewImage, setPreviewImage] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<Card3DData | null>(null);
+  const [cardOrigin, setCardOrigin] = useState<DOMRect | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const challenge = ALL_CHALLENGES.find(c => c.id === challengeId);
@@ -60,7 +64,7 @@ export default function ChallengePage() {
                     </span>
                   </div>
                   <div className="pt-1">
-                    <h1 className="text-lg font-display text-accent leading-tight">{challenge.title}</h1>
+                    <h1 className="text-gold font-title text-xl font-bold leading-tight">{challenge.title}</h1>
                     <p className="text-[10px] font-body text-muted-foreground mt-0.5">
                       +{challenge.xpReward} XP • 🏅 {challenge.medalName}
                     </p>
@@ -72,13 +76,13 @@ export default function ChallengePage() {
             {/* Narrative Card */}
             <div className="bg-card rounded-2xl border border-border p-4 mb-4 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <h3 className="text-[10px] font-display text-accent uppercase tracking-wider mb-2">📖 Narrativa</h3>
+              <h3 className="text-[11px] font-display font-bold text-accent uppercase tracking-[0.18em] mb-2">Narrativa</h3>
               <p className="text-sm font-body text-foreground/90 leading-relaxed">{challenge.narrative}</p>
             </div>
 
             {/* Objective */}
             <div className="bg-primary/10 rounded-2xl border border-primary/30 p-4 mb-4">
-              <h3 className="text-[10px] font-display text-accent mb-1.5 uppercase tracking-wider">🎯 Objetivo</h3>
+              <h3 className="text-[10px] font-display text-accent mb-1.5 uppercase tracking-wider">Objetivo</h3>
               <p className="text-sm font-body text-foreground/90">{challenge.objective}</p>
             </div>
 
@@ -95,7 +99,7 @@ export default function ChallengePage() {
 
             {/* Rewards Preview */}
             <div className="bg-card rounded-2xl border border-border p-4 mb-5">
-              <h3 className="text-[10px] font-display text-accent mb-2 uppercase tracking-wider">🎁 Recompensas</h3>
+              <h3 className="text-[10px] font-display text-accent mb-2 uppercase tracking-wider">Recompensas</h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-2.5 py-1 rounded-full bg-accent/10 text-[10px] font-body text-accent border border-accent/20">
                   +{challenge.xpReward} XP
@@ -106,9 +110,9 @@ export default function ChallengePage() {
                   </span>
                 ))}
                 {challenge.cardReward && (
-                  <span className="px-2.5 py-1 rounded-full bg-accent/15 text-[10px] font-body text-accent border border-accent/20">
+                  <button aria-label={`Inspecionar carta ${challenge.cardReward.name}`} onClick={event => { setCardOrigin(event.currentTarget.getBoundingClientRect()); setSelectedCard(getRewardProjection(challenge.cardReward!)); }} className="px-2.5 py-1 rounded-full bg-accent/15 text-[10px] font-body text-accent border border-accent/20">
                     {challenge.cardReward.icon} {challenge.cardReward.name}
-                  </span>
+                  </button>
                 )}
               </div>
             </div>
@@ -263,9 +267,9 @@ export default function ChallengePage() {
                 ))}
               </div>
               {challenge.cardReward && (
-                <p className="text-sm text-accent font-body">
+                <button aria-label={`Inspecionar carta ${challenge.cardReward.name}`} onClick={event => { setCardOrigin(event.currentTarget.getBoundingClientRect()); setSelectedCard(getRewardProjection(challenge.cardReward!)); }} className="text-sm text-accent font-body">
                   {challenge.cardReward.icon} Carta: {challenge.cardReward.name}
-                </p>
+                </button>
               )}
             </motion.div>
 
@@ -282,6 +286,8 @@ export default function ChallengePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <Card3DViewer card={selectedCard} origin={cardOrigin} onClose={() => setSelectedCard(null)} />
 
       {/* Full Image Preview Modal */}
       <AnimatePresence>

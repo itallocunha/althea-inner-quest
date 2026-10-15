@@ -1,400 +1,101 @@
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useRef, useState, type ChangeEvent } from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Camera, ChevronRight, RotateCcw, Settings2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useGame } from '@/context/GameContext';
-import { CoreAttributeKey, AdvancedAttributeKey, CORE_ATTRIBUTE_META, ADVANCED_ATTRIBUTE_META, ATTRIBUTE_MAX, RACE_LABELS, CLASS_LABELS, RACE_ICONS, CLASS_ICONS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
-import { CLASS_ART, ORB_ART, RACE_ART } from '@/lib/journeyAssets';
+import { RACE_LABELS, CLASS_LABELS, xpForCurrentLevel, XP_PER_LEVEL } from '@/types/game';
+import { CLASS_ART, ORB_ART, ORB_CONTINENT_ART, RACE_ART } from '@/lib/journeyAssets';
+import { getJourneyResume } from '@/lib/journeyProgress';
 import { BottomNav } from '@/components/BottomNav';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
-import { Plus, RotateCcw, ChevronRight, Camera, Sword, Shield, Scroll, BookOpen } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { RpgIcon } from '@/components/rpg/RpgIcon';
+import { XpMeter } from '@/components/rpg/Ornaments';
+import { HeroAttributes } from '@/components/rpg/HeroAttributes';
+import { Card3DViewer } from '@/components/rpg/Card3DViewer';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const ORB_COLORS: Record<string, string> = {
-  blue: 'from-blue-400 to-blue-600',
-  green: 'from-emerald-400 to-emerald-600',
-  purple: 'from-purple-400 to-purple-600',
-  red: 'from-red-400 to-rose-600',
-  yellow: 'from-amber-300 to-amber-500',
-};
-
-const ORB_NAMES_PT: Record<string, string> = {
-  blue: 'Azul', green: 'Verde', purple: 'Roxa', red: 'Vermelha', yellow: 'Amarela',
-};
+function savedImage(key: string) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
 
 export default function Profile() {
-  const navigate = useNavigate();
-  const { state, distributePoints, resetGame, getOrbProgress } = useGame();
-  const [profileImage, setProfileImage] = useState<string | null>(() => {
-    try { return localStorage.getItem('althea-profile-image'); } catch { return null; }
-  });
-  const [bannerImage, setBannerImage] = useState<string | null>(() => {
-    try { return localStorage.getItem('althea-banner-image'); } catch { return null; }
-  });
+  const { state, resetGame, getOrbProgress } = useGame();
+  const reduced = useReducedMotion();
+  const [profileImage, setProfileImage] = useState<string | null>(() => savedImage('althea-profile-image'));
+  const [bannerImage, setBannerImage] = useState<string | null>(() => savedImage('althea-banner-image'));
+  const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const [cardOrigin, setCardOrigin] = useState<DOMRect | null>(null);
+  const [selectedArt, setSelectedArt] = useState<{ src: string; label: string; type: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
-
-  if (!state.character) { navigate('/'); return null; }
+  if (!state.character) return <Navigate to="/" replace />;
   const c = state.character;
+  const resume = getJourneyResume(state);
   const currentXP = xpForCurrentLevel(c.xp);
-  const xpPercent = (currentXP / XP_PER_LEVEL) * 100;
+  const totalCompleted = Object.values(state.challengeProgress).filter(progress => progress.completed).length;
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  function uploadImage(event: ChangeEvent<HTMLInputElement>, type: 'portrait' | 'banner') {
+    const file = event.target.files?.[0];
+    event.target.value = '';
     if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error('Escolha um arquivo de imagem.'); return; }
+    if (file.size > 3 * 1024 * 1024) { toast.error('Escolha uma imagem de até 3 MB para salvar o retrato.'); return; }
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target?.result as string;
-      setProfileImage(dataUrl);
-      localStorage.setItem('althea-profile-image', dataUrl);
+    reader.onload = () => {
+      const image = String(reader.result);
+      try {
+        localStorage.setItem(type === 'portrait' ? 'althea-profile-image' : 'althea-banner-image', image);
+        if (type === 'portrait') setProfileImage(image); else setBannerImage(image);
+        toast.success('A aparência do seu herói foi atualizada.');
+      } catch { toast.error('Não foi possível salvar. Experimente uma imagem menor.'); }
     };
+    reader.onerror = () => toast.error('Não foi possível ler esta imagem.');
     reader.readAsDataURL(file);
-  };
+  }
 
-  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target?.result as string;
-      setBannerImage(dataUrl);
-      localStorage.setItem('althea-banner-image', dataUrl);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const quickLinks = [
-    { label: 'Inventário', count: state.itemCards.length, to: '/inventory', emoji: '🎒', Icon: Sword },
-    { label: 'Coleção de Medalhas', count: state.unlockedMedals.length, to: '/medals', emoji: '🏅', Icon: Shield },
-    { label: 'Grimório de Habilidades', count: state.skillCards.length, to: '/grimoire', emoji: '📖', Icon: Scroll },
-    { label: 'Histórias do Personagem', count: (state.stories || []).length, to: '/stories', emoji: '📚', Icon: BookOpen },
-  ];
-
-  // Total completed challenges
-  const totalCompleted = Object.values(state.challengeProgress).filter(p => p.completed).length;
-
-  return (
-    <div className="min-h-screen pb-20 px-4 pt-6 max-w-md mx-auto">
-      {/* Profile Header Card */}
-      <div className="relative rounded-3xl overflow-hidden border border-border mb-6">
-        {/* Banner - custom or gradient */}
-        <div className="h-28 relative overflow-hidden group cursor-pointer" onClick={() => bannerInputRef.current?.click()}>
-          {bannerImage ? (
-            <img src={bannerImage} alt="Banner" className="w-full h-full object-cover" />
-          ) : (
-            <div className="h-full bg-gradient-to-br from-primary via-primary/80 to-accent/30">
-              <img src={RACE_ART[c.race].banner} alt="" className="h-full w-full object-cover object-top opacity-80" />
-              <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
-            </div>
-          )}
-          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <Camera size={20} className="text-white" />
-          </div>
-          <input
-            ref={bannerInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleBannerUpload}
-          />
-        </div>
-        
-        {/* Avatar */}
-        <div className="flex justify-center -mt-12 relative z-10">
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="relative group"
-          >
-            <div className="w-24 h-24 rounded-full border-4 border-card overflow-hidden shadow-lg">
-              {profileImage ? (
-                <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <img src={RACE_ART[c.race].cover} alt={RACE_LABELS[c.race]} className="w-full h-full object-cover object-top" />
-              )}
-            </div>
-            <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Camera size={20} className="text-white" />
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageUpload}
-            />
-          </button>
-        </div>
-
-        {/* Character Info */}
-        <div className="bg-card px-5 pb-5 pt-3">
-          <div className="text-center mb-4">
-            <h1 className="text-xl font-display text-accent">{c.name}</h1>
-            <p className="text-xs text-muted-foreground font-body mt-0.5">Idade: {c.age} anos</p>
-          </div>
-
-          {/* Race & Class badges */}
-          <div className="flex justify-center gap-2 mb-4">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 border border-primary/30">
-              <span className="text-base">{RACE_ICONS[c.race]}</span>
-              <span className="text-[11px] font-display text-primary-foreground">{RACE_LABELS[c.race]}</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/15 border border-accent/30">
-              <span className="text-base">{CLASS_ICONS[c.characterClass]}</span>
-              <span className="text-[11px] font-display text-accent">{CLASS_LABELS[c.characterClass]}</span>
-            </div>
-          </div>
-
-          {/* Race & Class cards */}
-          <div className="flex justify-center gap-3 mb-4">
-            <img src={RACE_ART[c.race].card} alt={`Carta de raça: ${RACE_LABELS[c.race]}`} loading="lazy" className="w-[42%] rounded-xl shadow-lg shadow-black/50" />
-            <img src={CLASS_ART[c.characterClass].card} alt={`Carta de classe: ${CLASS_LABELS[c.characterClass]}`} loading="lazy" className="w-[42%] rounded-xl shadow-lg shadow-black/50" />
-          </div>
-
-          {/* Artistic Level Display */}
-          <div className="relative mb-2">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <motion.div
-                    className="w-12 h-12 rounded-xl gradient-accent flex items-center justify-center shadow-lg"
-                    animate={{ boxShadow: ['0 0 10px hsl(45 100% 65% / 0.3)', '0 0 25px hsl(45 100% 65% / 0.6)', '0 0 10px hsl(45 100% 65% / 0.3)'] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <span className="text-xl font-display font-bold text-accent-foreground">{c.level}</span>
-                  </motion.div>
-                </div>
-                <div>
-                  <p className="text-xs font-display text-foreground">Nível {c.level}</p>
-                  <p className="text-[10px] font-body text-muted-foreground">{currentXP}/{XP_PER_LEVEL} XP</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-body text-accent">{c.xp} XP total</p>
-                <p className="text-[10px] font-body text-muted-foreground">{totalCompleted} desafios</p>
-              </div>
-            </div>
-            <div className="h-2.5 bg-secondary rounded-full overflow-hidden">
-              <motion.div
-                className="h-full gradient-accent rounded-full relative"
-                initial={{ width: 0 }}
-                animate={{ width: `${xpPercent}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
-              </motion.div>
-            </div>
-          </div>
-        </div>
+  return <div className="archive-page hero-page">
+    <header className="hero-page-heading"><div><p className="archive-eyebrow">Althea · Ficha do personagem</p><h1 className="mt-2 font-title text-3xl text-[#f3dfb8]">Herói</h1></div><button className="hero-customize" aria-label="Personalizar herói" onClick={() => setAppearanceOpen(true)}><Settings2 size={17} /><span>Personalizar</span></button></header>
+    <main className="hero-layout">
+      <div className="hero-identity">
+        <motion.section className="hero-portrait-stage" initial={reduced ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <img src={bannerImage || ORB_CONTINENT_ART[resume.orb.id]} alt="" className="hero-portrait-background" />
+          <img src={profileImage || RACE_ART[c.race].cover} alt={`Retrato de ${c.name}`} className={`hero-portrait-art ${profileImage ? 'is-custom' : 'is-race-art'}`} />
+          <div className="hero-portrait-shade" />
+          <div className="hero-stage-top"><span className="hero-rank"><RpgIcon name="star" size={12} />{totalCompleted === 0 ? 'Uma lenda em despertar' : `${totalCompleted} passos na sua lenda`}</span><span className="hero-level"><small>NÍVEL</small>{c.level}</span></div>
+          <div className="hero-portrait-info"><p className="archive-eyebrow">{CLASS_LABELS[c.characterClass]}</p><h2 className="mt-2 break-words font-title text-3xl leading-snug text-[#f6e4be]">{c.name}</h2><p className="mt-2 font-body text-sm text-[#d0c6dc]">{RACE_LABELS[c.race]} · {c.age} anos</p><div className="mt-5"><XpMeter percent={currentXP / XP_PER_LEVEL * 100} label="Experiência" value={`${currentXP}/${XP_PER_LEVEL} XP`} /></div><p className="mt-2 text-right font-body text-xs text-[#bbb1ca]">{XP_PER_LEVEL - currentXP} XP para o próximo nível</p></div>
+        </motion.section>
+        <div className="hero-stat-strip"><div><RpgIcon name="sword" size={18} /><strong>{totalCompleted}</strong><span>Desafios</span></div><div><RpgIcon name="medal" size={18} /><strong>{state.unlockedMedals.length}</strong><span>Medalhas</span></div><div><RpgIcon name="flame" size={18} /><strong>{c.xp}</strong><span>XP total</span></div></div>
+        <div className="archive-section-label mt-6"><span>Essência do personagem</span><span>Inspecionar</span></div>
+        <div className="hero-trait-cards">{[{ src: RACE_ART[c.race].card, cover: RACE_ART[c.race].cover, label: RACE_LABELS[c.race], type: 'Raça' }, { src: CLASS_ART[c.characterClass].card, cover: CLASS_ART[c.characterClass].cover, label: CLASS_LABELS[c.characterClass], type: 'Classe' }].map(trait => <button key={trait.type} onClick={event => { setCardOrigin(event.currentTarget.getBoundingClientRect()); setSelectedArt({ src: trait.src, label: trait.label, type: trait.type }); }} aria-label={`Inspecionar carta de ${trait.type.toLowerCase()}: ${trait.label}`}><img src={trait.cover} alt="" loading="lazy" /><span><small>{trait.type}</small><strong>{trait.label}</strong></span><RpgIcon name="eye" size={17} className="trait-eye" /></button>)}</div>
+        <Link to={resume.destination} className="archive-primary mt-5 w-full">Continuar jornada <ArrowRight size={16} /></Link>
+        <div className="hero-collection-links"><Link to="/inventory"><RpgIcon name="chest" size={19} /><span>Inventário</span><strong>{state.itemCards.length}</strong></Link><Link to="/grimoire"><RpgIcon name="tome" size={19} /><span>Grimório</span><strong>{state.skillCards.length}</strong></Link><Link to="/collections"><RpgIcon name="gem" size={19} /><span>Todas as coleções</span><ChevronRight size={15} /></Link></div>
       </div>
-
-      {c.freePoints > 0 && (
-        <motion.div
-          className="bg-accent/10 rounded-xl border border-accent/30 p-3 mb-4 text-center"
-          animate={{ scale: [1, 1.02, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <p className="text-sm font-body text-accent font-semibold">✨ {c.freePoints} pontos livres para distribuir!</p>
-        </motion.div>
-      )}
-
-      {/* Journey Progress */}
-      <h2 className="font-display text-accent text-sm mb-3">Progresso nas Jornadas</h2>
-      <div className="space-y-2 mb-6">
-        {ORBS.map((orb, i) => {
-          const progress = getOrbProgress(i);
-          const challenges = getChallengesForOrb(orb.id);
-          const completed = challenges.filter(ch => state.challengeProgress[ch.id]?.completed).length;
-          const isUnlocked = i <= state.currentOrbIndex;
-          const colors = ORB_COLORS[orb.id] || 'from-gray-400 to-gray-600';
-
-          return (
-            <motion.button
-              onClick={() => navigate(`/portfolio/${orb.id}`)}
-              key={orb.id}
-              className={`rounded-xl border p-3 ${isUnlocked ? 'bg-card border-border' : 'bg-card/40 border-border/40 opacity-50'}`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: isUnlocked ? 1 : 0.5, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`relative w-10 h-10 rounded-lg bg-gradient-to-br ${colors} flex items-center justify-center shrink-0`}>
-                  {isUnlocked
-                    ? <img src={ORB_ART[orb.id]} alt="" className="h-9 w-9 object-contain" />
-                    : <span className="text-lg">🔒</span>}
-                  {progress === 100 && <span className="absolute -bottom-1 -right-1 text-xs">✅</span>}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <h3 className="text-xs font-display text-foreground truncate">{orb.name}</h3>
-                    <span className="text-[10px] font-body text-muted-foreground shrink-0">{completed}/{challenges.length}</span>
-                  </div>
-                  <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                    <motion.div
-                      className={`h-full rounded-full bg-gradient-to-r ${colors}`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ duration: 0.6 }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </motion.button>
-          );
-        })}
+      <div className="hero-dossier">
+        <Tabs defaultValue="attributes">
+          <TabsList className="hero-tabs"><TabsTrigger value="attributes">Atributos</TabsTrigger><TabsTrigger value="journey">Jornadas</TabsTrigger><TabsTrigger value="story">História</TabsTrigger></TabsList>
+          <TabsContent value="attributes" className="mt-6"><HeroAttributes /></TabsContent>
+          <TabsContent value="journey" className="mt-6"><div className="archive-section-label"><span>Os cinco territórios</span><RpgIcon name="map" size={18} /></div><p className="mb-5 font-body text-base text-muted-foreground">Cada orbe revela uma nova parte de você.</p><div className="space-y-3">{ORBS.map((orb, index) => {
+            const progress = getOrbProgress(index);
+            const challenges = getChallengesForOrb(orb.id);
+            const completed = challenges.filter(challenge => state.challengeProgress[challenge.id]?.completed).length;
+            const unlocked = index <= state.currentOrbIndex;
+            return <div key={orb.id} className={`hero-journey ${unlocked ? '' : 'is-locked'}`}><img src={ORB_ART[orb.id]} alt="" /><div className="min-w-0 flex-1"><h3 className="font-display text-sm text-[#f3dfb8]">{orb.name}</h3><p className="mt-1 font-body text-sm text-muted-foreground">{orb.theme}</p><div className="mt-3 flex justify-between text-xs text-muted-foreground"><span>{completed}/{challenges.length} desafios</span><span>{progress}%</span></div><div className="attribute-track mt-2"><div style={{ width: `${progress}%`, backgroundColor: `hsl(var(--orb-${orb.id}))` }} /></div>{unlocked && <Link to={`/portfolio/${orb.id}`} className="mt-3 inline-flex items-center gap-2 font-body text-sm text-accent">Ver minhas conquistas <ArrowRight size={13} /></Link>}</div>{!unlocked && <RpgIcon name="lock" size={16} />}</div>;
+          })}</div></TabsContent>
+          <TabsContent value="story" className="mt-6"><section className="hero-story"><RpgIcon name="quill" size={32} /><p className="archive-eyebrow mt-5">Prólogo da sua lenda</p><h2 className="mt-3 font-display text-xl text-[#f3dfb8]">Toda aventura tem uma origem</h2><p className="mt-5 whitespace-pre-wrap break-words font-body text-base leading-relaxed text-[#cfc5db]">{c.backstory || 'A história do seu herói ainda está sendo escrita. Registre suas descobertas, encontros e momentos de coragem nas crônicas da jornada.'}</p><Link to="/stories" className="archive-primary mt-6">Escrever minhas crônicas <ArrowRight size={15} /></Link><p className="mt-5 font-body text-sm text-muted-foreground">{(state.stories || []).length} crônicas no seu acervo</p></section></TabsContent>
+        </Tabs>
+        <details className="hero-game-options"><summary>Opções da jornada</summary><button onClick={() => { if (confirm('Resetar todo o progresso? Esta ação apaga o personagem e suas conquistas.')) resetGame(); }}><RotateCcw size={14} /> Reiniciar jogo</button></details>
       </div>
-
-      {/* Quick Links */}
-      <h2 className="font-display text-accent text-sm mb-3">Coleções</h2>
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        {quickLinks.map(({ label, count, to, emoji }, i) => (
-          <motion.button
-            key={to}
-            onClick={() => navigate(to)}
-            className="flex flex-col items-center gap-2 bg-card rounded-xl border border-border p-4 hover:border-accent/30 transition-colors"
-            whileTap={{ scale: 0.96 }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-          >
-            <span className="text-3xl">{emoji}</span>
-            <div className="text-center">
-              <p className="text-[11px] font-display text-foreground leading-tight">{label}</p>
-              <p className="text-[10px] font-body text-accent mt-0.5">{count} {count === 1 ? 'item' : 'itens'}</p>
-            </div>
-          </motion.button>
-        ))}
-      </div>
-
-      {/* Core Attributes */}
-      <h2 className="font-display text-accent text-sm mb-3">⚔️ Atributos Principais</h2>
-      <div className="bg-card rounded-2xl border border-border p-4 mb-4">
-        <div className="grid grid-cols-1 gap-3">
-          {(Object.keys(CORE_ATTRIBUTE_META) as CoreAttributeKey[]).map((key, i) => {
-            const meta = CORE_ATTRIBUTE_META[key];
-            const val = c.attributes[key] || 0;
-            const pct = (val / ATTRIBUTE_MAX) * 100;
-            return (
-              <motion.div
-                key={key}
-                className="relative"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.03 }}
-              >
-                <div className="flex items-center gap-2.5 mb-1">
-                  <span className="text-base w-6 text-center">{meta.icon}</span>
-                  <span className="text-[11px] font-display text-foreground flex-1">{meta.label}</span>
-                  <span className="text-[10px] font-body font-semibold" style={{ color: `hsl(${meta.color})` }}>
-                    {val}/{ATTRIBUTE_MAX}
-                  </span>
-                  {c.freePoints > 0 && val < ATTRIBUTE_MAX && (
-                    <button
-                      onClick={() => distributePoints(key, 5)}
-                      className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
-                      style={{ backgroundColor: `hsl(${meta.color} / 0.2)` }}
-                    >
-                      <Plus size={9} style={{ color: `hsl(${meta.color})` }} />
-                    </button>
-                  )}
-                </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden ml-8">
-                  <motion.div
-                    className="h-full rounded-full relative"
-                    style={{
-                      background: `linear-gradient(90deg, hsl(${meta.color} / 0.6), hsl(${meta.color}))`,
-                    }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${pct}%` }}
-                    transition={{ duration: 0.6, delay: i * 0.03 }}
-                  >
-                    {pct > 10 && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
-                    )}
-                  </motion.div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Advanced RPG Attributes */}
-      <h2 className="font-display text-accent text-sm mb-3">🌟 Atributos Avançados</h2>
-      <div className="bg-card rounded-2xl border border-border p-4 mb-6">
-        <p className="text-[10px] font-body text-muted-foreground mb-3">
-          Evoluem em jornadas futuras — desbloqueie novos jogos para progredir!
-        </p>
-        <div className="grid grid-cols-2 gap-2.5">
-          {(Object.keys(ADVANCED_ATTRIBUTE_META) as AdvancedAttributeKey[]).map((key, i) => {
-            const meta = ADVANCED_ATTRIBUTE_META[key];
-            const val = c.attributes[key] || 0;
-            const pct = (val / ATTRIBUTE_MAX) * 100;
-            const locked = val === 0;
-
-            return (
-              <motion.div
-                key={key}
-                className={`rounded-xl border p-2.5 relative overflow-hidden ${
-                  locked ? 'border-border/50 opacity-60' : 'border-border'
-                }`}
-                style={!locked ? { borderColor: `hsl(${meta.color} / 0.3)` } : {}}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: locked ? 0.6 : 1, scale: 1 }}
-                transition={{ delay: i * 0.03 }}
-              >
-                {!locked && (
-                  <div
-                    className="absolute inset-0 opacity-10"
-                    style={{ background: `radial-gradient(circle at 80% 20%, hsl(${meta.color}), transparent 60%)` }}
-                  />
-                )}
-                <div className="relative z-10">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <span className="text-sm">{meta.icon}</span>
-                    <span className="text-[10px] font-display text-foreground leading-tight">{meta.label}</span>
-                  </div>
-                  <div className="h-1.5 bg-secondary rounded-full overflow-hidden mb-1">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ background: `hsl(${meta.color})` }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pct}%` }}
-                      transition={{ duration: 0.5 }}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[9px] font-body text-muted-foreground">{val}/{ATTRIBUTE_MAX}</span>
-                    <span className="text-[8px] font-body text-muted-foreground/70 italic">{meta.journey}</span>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-card rounded-xl border border-border p-3 text-center">
-          <p className="text-xl font-display text-accent">{state.unlockedMedals.length}</p>
-          <p className="text-[10px] font-body text-muted-foreground">Medalhas</p>
-        </div>
-        <div className="bg-card rounded-xl border border-border p-3 text-center">
-          <p className="text-xl font-display text-accent">{state.itemCards.length}</p>
-          <p className="text-[10px] font-body text-muted-foreground">Itens</p>
-        </div>
-        <div className="bg-card rounded-xl border border-border p-3 text-center">
-          <p className="text-xl font-display text-accent">{state.skillCards.length}</p>
-          <p className="text-[10px] font-body text-muted-foreground">Habilidades</p>
-        </div>
-      </div>
-
-      <button
-        onClick={() => { if (confirm('Resetar todo o progresso?')) resetGame(); }}
-        className="w-full py-2 rounded-full border border-destructive/30 text-destructive text-sm font-body flex items-center justify-center gap-2"
-      >
-        <RotateCcw size={14} /> Resetar Jogo
-      </button>
-
-      <BottomNav />
-    </div>
-  );
+    </main>
+    <Dialog open={appearanceOpen} onOpenChange={setAppearanceOpen}><DialogContent className="artifact-dialog w-[calc(100%_-_2rem)] rounded-2xl"><DialogTitle className="font-display text-xl text-[#f3dfb8]">A aparência do seu herói</DialogTitle><DialogDescription className="font-body text-base">Escolha as imagens que contam a sua história.</DialogDescription><div className="grid gap-3"><button className="hero-upload-option" onClick={() => fileInputRef.current?.click()}><Camera size={22} /><span><strong>Alterar retrato</strong><small>A imagem principal do personagem</small></span><ChevronRight size={16} /></button><button className="hero-upload-option" onClick={() => bannerInputRef.current?.click()}><RpgIcon name="map" size={22} /><span><strong>Alterar cenário</strong><small>O fundo da sua ficha de herói</small></span><ChevronRight size={16} /></button></div><p className="text-sm text-muted-foreground">Imagens de até 3 MB, salvas neste navegador.</p></DialogContent></Dialog>
+    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" aria-label="Enviar retrato do herói" onChange={event => uploadImage(event, 'portrait')} />
+    <input ref={bannerInputRef} type="file" accept="image/*" className="hidden" aria-label="Enviar cenário do herói" onChange={event => uploadImage(event, 'banner')} />
+    <Card3DViewer origin={cardOrigin} onClose={() => setSelectedArt(null)} card={selectedArt ? {
+      name: selectedArt.label, image: selectedArt.src, badge: `Carta de ${selectedArt.type.toLowerCase()}`,
+      color: 'var(--orb-purple)', backTitle: selectedArt.label,
+      backDescription: `A ${selectedArt.type.toLowerCase()} que faz parte da essência de ${c.name}. Uma carta da sua lenda em Althea.`,
+    } : null} />
+    <BottomNav />
+  </div>;
 }

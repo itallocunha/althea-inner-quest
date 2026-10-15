@@ -1,5 +1,13 @@
 # Althea: Your Inner World
 
+## Abrir no Windows
+
+Clique duas vezes em **Iniciar Althea.exe**, na raiz desta pasta. O iniciador abre o site no navegador padrão e usa os arquivos atuais do projeto. Se o Althea já estiver aberto, ele reutiliza a sessão.
+
+Para encerrar o servidor iniciado pelo executável, clique com o botão direito no ícone do Althea perto do relógio e escolha **Encerrar Althea**. Mantenha o executável junto de `scripts` e `node_modules`; ele usa o Node.js instalado no computador. As instruções também estão em **COMO ABRIR O ALTHEA.txt**. O endereço padrão continua sendo `http://127.0.0.1:8080/`.
+
+Para gerar novamente o arquivo no Windows, execute `npm run launcher:build`. A compilação usa o compilador do .NET Framework já presente no Windows, sem baixar um instalador.
+
 Crie um aplicativo mobile + web responsivo chamado:
 
 Althea – Uma Jornada do Autoconhecimento

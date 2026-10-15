@@ -5,7 +5,8 @@ import { BottomNav } from '@/components/BottomNav';
 import { CardDetailModal } from '@/components/CardDetailModal';
 import { ALL_CHALLENGES } from '@/data/gameData';
 import { useNavigate } from 'react-router-dom';
-import { Lock } from 'lucide-react';
+import { RpgIcon } from '@/components/rpg/RpgIcon';
+import { PageHeader, XpMeter } from '@/components/rpg/Ornaments';
 import { OrbId } from '@/types/game';
 import { getMedalArt } from '@/lib/journeyAssets';
 
@@ -32,6 +33,7 @@ interface MedalData {
 export default function Medals() {
   const navigate = useNavigate();
   const { state } = useGame();
+  const [origin, setOrigin] = useState<DOMRect | null>(null);
   const [selected, setSelected] = useState<MedalData | null>(null);
 
   if (!state.character) { navigate('/'); return null; }
@@ -48,19 +50,11 @@ export default function Medals() {
   const unlocked = new Set(state.unlockedMedals);
 
   return (
-    <div className="min-h-screen pb-20 px-4 pt-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-display text-accent mb-1">Coleção de Medalhas</h1>
-      <p className="text-xs text-muted-foreground font-body mb-6">{unlocked.size}/{allMedalData.length} desbloqueadas</p>
+    <div className="min-h-screen pb-28 px-4 pt-8 max-w-md mx-auto">
+      <PageHeader title="Salão de Medalhas" subtitle={`${unlocked.size} de ${allMedalData.length} honrarias conquistadas`} icon="medal" />
 
       <div className="mb-6">
-        <div className="h-2 bg-secondary rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-accent via-accent/80 to-accent rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${(unlocked.size / allMedalData.length) * 100}%` }}
-            transition={{ duration: 0.8 }}
-          />
-        </div>
+        <XpMeter percent={(unlocked.size / allMedalData.length) * 100} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -69,16 +63,18 @@ export default function Medals() {
           const colors = ORB_MEDAL_COLORS[medal.orbId] || ORB_MEDAL_COLORS.blue;
 
           return (
-            <motion.div
+            <motion.button
               key={i}
-              className={`relative rounded-2xl overflow-hidden cursor-pointer ${
+              className={`relative text-left rounded-2xl overflow-hidden cursor-pointer ${
                 isUnlocked ? `border-2 ${colors.border} shadow-lg ${colors.glow}` : 'border border-border'
               }`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.03, type: 'spring', stiffness: 200 }}
               whileHover={isUnlocked ? { scale: 1.05, y: -2 } : {}}
-              onClick={() => isUnlocked && setSelected(medal)}
+              disabled={!isUnlocked}
+              aria-label={`Inspecionar medalha ${medal.name}`}
+              onClick={event => { setOrigin(event.currentTarget.getBoundingClientRect()); setSelected(medal); }}
             >
               {isUnlocked ? (
                 <>
@@ -109,21 +105,23 @@ export default function Medals() {
               ) : (
                 <div className="h-full bg-card/50 flex flex-col items-center justify-center py-8 px-3 text-center">
                   <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-2">
-                    <Lock size={16} className="text-muted-foreground" />
+                    <RpgIcon name="lock" size={18} className="text-muted-foreground" />
                   </div>
                   <span className="text-[9px] font-body text-muted-foreground leading-tight">{medal.name}</span>
                 </div>
               )}
-            </motion.div>
+            </motion.button>
           );
         })}
       </div>
 
       <CardDetailModal
+        origin={origin}
         open={!!selected}
         onClose={() => setSelected(null)}
         type="medal"
         data={selected ? {
+          orbId: selected.orbId,
           icon: selected.icon,
           image: selected.image,
           name: selected.name,

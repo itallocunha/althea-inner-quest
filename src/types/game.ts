@@ -191,6 +191,7 @@ export interface CharacterStory {
 }
 
 export interface GameState {
+  favoriteCardIds?: string[];
   character: CharacterData | null;
   challengeProgress: Record<string, ChallengeProgress>;
   unlockedMedals: string[];

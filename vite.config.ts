@@ -12,7 +12,10 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
     watch: {
-      ignored: ["**/imagens/**"],
+      // Polling keeps hot reload reliable on synced folders such as the Desktop
+      usePolling: true,
+      interval: 300,
+      ignored: ["**/imagens/**", "**/node_modules/**", "**/public/art/**", "**/.git/**"],
     },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),

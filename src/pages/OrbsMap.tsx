@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Check, ChevronRight, Lock, Map, Sparkles } from 'lucide-react';
+import { Check, ChevronRight, Sparkles } from 'lucide-react';
+import { RpgIcon } from '@/components/rpg/RpgIcon';
+import { OrnateDivider } from '@/components/rpg/Ornaments';
 import { useGame } from '@/context/GameContext';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
 import { XPBar } from '@/components/XPBar';
@@ -34,8 +36,9 @@ export default function OrbsMap() {
         <img src={WORLD_MAP_ART} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 to-background/90" />
         <div className="relative mx-auto max-w-3xl">
-          <div className="mb-1 flex items-center gap-2"><Map size={18} className="text-accent" /><h1 className="font-display text-xl text-accent">Mapa das Orbes</h1></div>
-          <p className="mb-4 font-body text-xs text-muted-foreground">Percorra os cinco territórios da sua jornada interior</p>
+          <div className="mb-1 flex items-center justify-center gap-2"><RpgIcon name="map" size={22} className="text-accent" /><h1 className="text-gold font-title text-xl font-bold">Mapa das Orbes</h1></div>
+          <p className="mb-3 text-center font-body text-sm text-muted-foreground">Percorra os cinco territórios da sua jornada interior</p>
+          <OrnateDivider className="mb-4" />
           <XPBar />
         </div>
       </header>
@@ -79,7 +82,7 @@ export default function OrbsMap() {
                         transition={{ duration: 2.8, repeat: Infinity }}
                       />
                       <div className={`absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border bg-background ${theme.border}`}>
-                        {complete ? <Check size={14} className={theme.text} /> : unlocked ? <span className={`font-display text-[10px] ${theme.text}`}>{index + 1}</span> : <Lock size={12} />}
+                        {complete ? <Check size={14} className={theme.text} /> : unlocked ? <span className={`font-display text-[10px] ${theme.text}`}>{index + 1}</span> : <RpgIcon name="lock" size={14} />}
                       </div>
                     </div>
                     <div className="min-w-0 flex-1">

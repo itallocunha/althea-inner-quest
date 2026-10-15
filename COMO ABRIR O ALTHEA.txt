@@ -1,0 +1,26 @@
+ABRIR O ALTHEA
+
+Clique duas vezes em "Iniciar Althea.exe" nesta pasta.
+O navegador padrão abre automaticamente assim que o site estiver pronto.
+
+O iniciador usa os arquivos atuais do projeto: alterações feitas no aplicativo
+continuam aparecendo no navegador durante o desenvolvimento.
+
+Para abrir novamente, clique duas vezes no executável ou no ícone do Althea
+perto do relógio do Windows (ele pode estar na área de ícones ocultos).
+
+Para encerrar o servidor iniciado pelo executável, clique com o botão direito nesse ícone e escolha
+"Encerrar Althea". Fechar somente o navegador mantém o site disponível.
+
+Se o site já estiver aberto por outro iniciador, o executável apenas abre
+essa sessão no navegador; o servidor continua sob o controle do iniciador original.
+
+Mantenha o executável nesta pasta, junto de scripts e node_modules.
+Este iniciador precisa do Node.js, que já está instalado neste computador.
+Não é um instalador portátil do aplicativo.
+
+Endereço: http://127.0.0.1:8080/
+O mesmo endereço é mantido para preservar o progresso salvo no navegador.
+
+Se a inicialização falhar, os detalhes ficam em logs/althea-launcher.log.
+Para gerar novamente o executável: npm run launcher:build

@@ -10,6 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "art": "node scripts/optimize-art.mjs",
+    "artifact": "node scripts/build-artifact.mjs",
+    "launcher:build": "node scripts/build-launcher.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

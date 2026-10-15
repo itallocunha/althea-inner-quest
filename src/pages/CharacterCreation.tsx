@@ -8,6 +8,7 @@ import {
 } from '@/types/game';
 import { CLASS_ART, RACE_ART } from '@/lib/journeyAssets';
 import { ChevronLeft, ChevronRight, Plus, Minus } from 'lucide-react';
+import { Card3DViewer, type Card3DData } from '@/components/rpg/Card3DViewer';
 
 const STEPS = ['Identidade', 'Raça', 'Classe', 'Atributos', 'História'];
 const RACES: Race[] = ['human', 'elf', 'dwarf', 'draconian', 'fairy', 'orc'];
@@ -24,6 +25,13 @@ export default function CharacterCreation() {
   const [attrs, setAttrs] = useState<Attributes>({ ...DEFAULT_ATTRIBUTES });
   const [freePoints, setFreePoints] = useState(10);
   const [backstory, setBackstory] = useState('');
+  const [selectedCard, setSelectedCard] = useState<Card3DData | null>(null);
+  const [cardOrigin, setCardOrigin] = useState<DOMRect | null>(null);
+
+  const inspectTrait = (label: string, image: string, type: string, origin: DOMRect) => {
+    setCardOrigin(origin);
+    setSelectedCard({ name: label, image, badge: `Carta de ${type}`, color: 'var(--orb-purple)' });
+  };
 
   const addAttr = (key: AttributeKey) => {
     if (freePoints <= 0 || attrs[key] >= 10) return;
@@ -66,7 +74,7 @@ export default function CharacterCreation() {
         >
           {step === 0 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-display text-accent">Quem é você, aventureiro?</h2>
+              <h2 className="text-gold font-title text-2xl font-bold">Quem é você, aventureiro?</h2>
               <div>
                 <label className="text-sm font-body text-muted-foreground mb-1 block">Nome</label>
                 <input
@@ -92,13 +100,13 @@ export default function CharacterCreation() {
 
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-display text-accent">Escolha sua Raça</h2>
+              <h2 className="text-gold font-title text-2xl font-bold">Escolha sua Raça</h2>
               <img src={RACE_ART[race].banner} alt={RACE_LABELS[race]} className="w-full rounded-xl border border-accent/40 shadow-lg shadow-black/40" />
               <div className="grid grid-cols-3 gap-2">
                 {RACES.map(r => (
                   <motion.button
                     key={r}
-                    onClick={() => setRace(r)}
+                    onClick={event => { setRace(r); inspectTrait(RACE_LABELS[r], RACE_ART[r].card, 'raça', event.currentTarget.getBoundingClientRect()); }}
                     whileTap={{ scale: 0.95 }}
                     aria-label={RACE_LABELS[r]}
                     aria-pressed={race === r}
@@ -115,14 +123,16 @@ export default function CharacterCreation() {
 
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-display text-accent">Escolha sua Classe</h2>
+              <h2 className="text-gold font-title text-2xl font-bold">Escolha sua Classe</h2>
               {/* The Paladino banner file is labelled "Draconianos", so classes preview their card instead. */}
-              <img src={CLASS_ART[charClass].card} alt={CLASS_LABELS[charClass]} className="mx-auto w-1/2 rounded-xl shadow-lg shadow-black/50" />
+              <button className="mx-auto block w-1/2" aria-label={`Inspecionar carta de classe: ${CLASS_LABELS[charClass]}`} onClick={event => inspectTrait(CLASS_LABELS[charClass], CLASS_ART[charClass].card, 'classe', event.currentTarget.getBoundingClientRect())}>
+                <img src={CLASS_ART[charClass].card} alt={CLASS_LABELS[charClass]} className="w-full rounded-xl shadow-lg shadow-black/50" />
+              </button>
               <div className="grid grid-cols-3 gap-2">
                 {CLASSES.map(c => (
                   <motion.button
                     key={c}
-                    onClick={() => setCharClass(c)}
+                    onClick={event => { setCharClass(c); inspectTrait(CLASS_LABELS[c], CLASS_ART[c].card, 'classe', event.currentTarget.getBoundingClientRect()); }}
                     whileTap={{ scale: 0.95 }}
                     aria-label={CLASS_LABELS[c]}
                     aria-pressed={charClass === c}
@@ -140,7 +150,7 @@ export default function CharacterCreation() {
           {step === 3 && (
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-display text-accent">Atributos</h2>
+                <h2 className="text-gold font-title text-2xl font-bold">Atributos</h2>
                 <span className="text-sm font-body text-accent font-semibold">{freePoints} pontos</span>
               </div>
               <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2">
@@ -164,10 +174,14 @@ export default function CharacterCreation() {
 
           {step === 4 && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-display text-accent">Sua História</h2>
+              <h2 className="text-gold font-title text-2xl font-bold">Sua História</h2>
               <div className="flex justify-center gap-3">
-                <img src={RACE_ART[race].card} alt={`Carta de raça: ${RACE_LABELS[race]}`} className="w-[46%] rounded-xl shadow-lg shadow-black/50" />
-                <img src={CLASS_ART[charClass].card} alt={`Carta de classe: ${CLASS_LABELS[charClass]}`} className="w-[46%] rounded-xl shadow-lg shadow-black/50" />
+                <button className="w-[46%]" aria-label={`Inspecionar carta de raça: ${RACE_LABELS[race]}`} onClick={event => inspectTrait(RACE_LABELS[race], RACE_ART[race].card, 'raça', event.currentTarget.getBoundingClientRect())}>
+                  <img src={RACE_ART[race].card} alt={RACE_LABELS[race]} className="w-full rounded-xl shadow-lg shadow-black/50" />
+                </button>
+                <button className="w-[46%]" aria-label={`Inspecionar carta de classe: ${CLASS_LABELS[charClass]}`} onClick={event => inspectTrait(CLASS_LABELS[charClass], CLASS_ART[charClass].card, 'classe', event.currentTarget.getBoundingClientRect())}>
+                  <img src={CLASS_ART[charClass].card} alt={CLASS_LABELS[charClass]} className="w-full rounded-xl shadow-lg shadow-black/50" />
+                </button>
               </div>
               <p className="text-sm text-muted-foreground font-body">Quem é você? O que te trouxe até aqui? Qual seu maior desafio?</p>
               <textarea
@@ -181,6 +195,8 @@ export default function CharacterCreation() {
           )}
         </motion.div>
       </AnimatePresence>
+
+      <Card3DViewer card={selectedCard} origin={cardOrigin} onClose={() => setSelectedCard(null)} />
 
       {/* Navigation buttons */}
       <div className="flex gap-3 mt-8">
