@@ -2,14 +2,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, HashRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from 'react';
-import { GameProvider } from "@/context/GameContext";
+import { BrowserRouter, HashRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect, type ReactNode } from 'react';
+import { GameProvider, useGame } from "@/context/GameContext";
 import { EmberField } from "@/components/rpg/EmberField";
 import HomeSocial from "./pages/HomeSocial";
 import CharacterCreation from "./pages/CharacterCreation";
-import Journeys from "./pages/Journeys";
-import OrbsMap from "./pages/OrbsMap";
+import Atlas from "./pages/Atlas";
 import World from "./pages/World";
 import OrbDetail from "./pages/OrbDetail";
 import ChallengePage from "./pages/ChallengePage";
@@ -35,6 +34,11 @@ function ScrollToTop() {
   return null;
 }
 
+function HeroJourney({ children }: { children: ReactNode }) {
+  const { state } = useGame();
+  return state.character ? children : <Navigate to="/create" replace />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -48,11 +52,12 @@ const App = () => (
             <Routes>
               <Route path="/" element={<HomeSocial />} />
               <Route path="/create" element={<CharacterCreation />} />
-              <Route path="/journeys" element={<Journeys />} />
-              <Route path="/world" element={<World />} />
-              <Route path="/orbs" element={<OrbsMap />} />
-              <Route path="/orb/:orbId" element={<OrbDetail />} />
-              <Route path="/challenge/:challengeId" element={<ChallengePage />} />
+              <Route path="/atlas" element={<Atlas />} />
+              <Route path="/journeys" element={<Navigate to="/atlas" replace />} />
+              <Route path="/world" element={<HeroJourney><World /></HeroJourney>} />
+              <Route path="/orbs" element={<Navigate to="/world" replace />} />
+              <Route path="/orb/:orbId" element={<HeroJourney><OrbDetail /></HeroJourney>} />
+              <Route path="/challenge/:challengeId" element={<HeroJourney><ChallengePage /></HeroJourney>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/collections" element={<Collections />} />

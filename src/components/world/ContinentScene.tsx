@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import * as Dialog from '@radix-ui/react-dialog';
 import { useNavigate } from 'react-router-dom';
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useGame } from '@/context/GameContext';
@@ -14,6 +15,7 @@ interface ContinentSceneProps {
   /** Screen point the portal opens from (the orb that was tapped). */
   origin: { x: number; y: number };
   onClose: () => void;
+  onReturnFocus: () => void;
 }
 
 // Ten stops winding up the continent, in percentages of the screen (bottom-left to top)
@@ -34,8 +36,9 @@ function smoothPath(points: [number, number][]) {
   return d;
 }
 
-export function ContinentScene({ orb, orbIndex, origin, onClose }: ContinentSceneProps) {
+export function ContinentScene({ orb, orbIndex, origin, onClose, onReturnFocus }: ContinentSceneProps) {
   const navigate = useNavigate();
+  const reducedMotion = useReducedMotion();
   const { isChallengeUnlocked, isChallengeCompleted, getOrbProgress, isOrbUnlocked } = useGame();
   const [picked, setPicked] = useState<string | null>(null);
 
@@ -52,20 +55,23 @@ export function ContinentScene({ orb, orbIndex, origin, onClose }: ContinentScen
   const iris = (r: string) => `circle(${r} at ${origin.x}px ${origin.y}px)`;
 
   return (
+    <Dialog.Root open onOpenChange={open => { if (!open) onClose(); }}>
+    <Dialog.Content asChild onCloseAutoFocus={event => { event.preventDefault(); onReturnFocus(); }}>
     <motion.div
       className="fixed inset-0 z-[60] overflow-hidden bg-background"
-      initial={{ clipPath: iris('0px') }}
-      animate={{ clipPath: iris('150vmax') }}
-      exit={{ clipPath: iris('0px') }}
-      transition={{ duration: 0.85, ease: [0.65, 0, 0.2, 1] }}
+      initial={reducedMotion ? false : { clipPath: iris('0px') }}
+      animate={reducedMotion ? {} : { clipPath: iris('150vmax') }}
+      exit={reducedMotion ? {} : { clipPath: iris('0px') }}
+      transition={{ duration: reducedMotion ? 0 : 0.85, ease: [0.65, 0, 0.2, 1] }}
     >
+      <Dialog.Description className="sr-only">Selecione uma ilha da trilha para conhecer seu desafio. Pressione Escape para voltar ao mapa.</Dialog.Description>
       {/* Terrain with a slow Ken Burns drift */}
       <motion.img
         src={ORB_CONTINENT_ART[orb.id]}
         alt={`Território da ${orb.name}`}
         className="absolute inset-0 h-full w-full object-cover"
-        initial={{ scale: 1.25 }}
-        animate={{ scale: [1.08, 1.16, 1.08], x: ['0%', '-2.5%', '0%'] }}
+        initial={reducedMotion ? false : { scale: 1.25 }}
+        animate={reducedMotion ? { scale: 1, x: 0 } : { scale: [1.08, 1.16, 1.08], x: ['0%', '-2.5%', '0%'] }}
         transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
       />
       <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_50%_45%,transparent,hsl(var(--background)/0.85))]" />
@@ -74,7 +80,7 @@ export function ContinentScene({ orb, orbIndex, origin, onClose }: ContinentScen
       <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-background/95 to-transparent" />
 
       {/* Drifting motes in the orb's colour */}
-      {Array.from({ length: 16 }, (_, i) => (
+      {!reducedMotion && Array.from({ length: 16 }, (_, i) => (
         <motion.span
           key={i}
           className="pointer-events-none absolute rounded-full"
@@ -138,7 +144,7 @@ export function ContinentScene({ orb, orbIndex, origin, onClose }: ContinentScen
                   src={CHARACTER_ART.mage}
                   alt="Você está aqui"
                   className="pointer-events-none absolute -top-[4.5rem] left-1/2 h-20 w-14 -translate-x-1/2 object-contain drop-shadow-[0_6px_10px_rgba(0,0,0,0.7)]"
-                  animate={{ y: [0, -7, 0] }}
+                  animate={reducedMotion ? {} : { y: [0, -7, 0] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
                 />
               )}
@@ -159,7 +165,7 @@ export function ContinentScene({ orb, orbIndex, origin, onClose }: ContinentScen
           <ChevronLeft size={18} /> Mundo
         </motion.button>
         <motion.div className="min-w-0 flex-1 text-right" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
-          <h2 className="font-title text-lg font-bold leading-tight" style={{ color, textShadow: `0 0 18px ${color}` }}>{orb.name}</h2>
+          <Dialog.Title asChild><h2 className="font-title text-lg font-bold leading-tight" style={{ color, textShadow: `0 0 18px ${color}` }}>{orb.name}</h2></Dialog.Title>
           <p className="font-display text-[10px] uppercase tracking-[0.2em] text-foreground/80">{orb.theme}</p>
         </motion.div>
       </div>
@@ -222,5 +228,7 @@ export function ContinentScene({ orb, orbIndex, origin, onClose }: ContinentScen
       </div>
 
     </motion.div>
+    </Dialog.Content>
+    </Dialog.Root>
   );
 }

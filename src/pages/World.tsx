@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
-import { AnimatePresence, animate, motion, useMotionValue } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion } from 'framer-motion';
+import { Link, Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useGame } from '@/context/GameContext';
 import { ORBS, getChallengesForOrb } from '@/data/gameData';
@@ -34,7 +34,7 @@ const CLOUDS = [
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 export default function World() {
-  const navigate = useNavigate();
+  const reducedMotion = useReducedMotion();
   const { state, isOrbUnlocked, getOrbProgress } = useGame();
   const [view, setView] = useState({ w: window.innerWidth, h: window.innerHeight });
   const [selected, setSelected] = useState<number | null>(null);
@@ -46,6 +46,8 @@ export default function World() {
   const camY = useMotionValue(0);
   const camS = useMotionValue(1);
   const saved = useRef({ x: 0, y: 0 });
+  const sceneTimer = useRef<ReturnType<typeof setTimeout>>();
+  const sceneTrigger = useRef<HTMLElement | null>(null);
   const press = useRef<{ x: number; y: number; t: number; vx: number; vy: number; dragging: boolean } | null>(null);
   const moved = useRef(false);
 
@@ -91,9 +93,11 @@ export default function World() {
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => () => clearTimeout(sceneTimer.current), []);
+
   const clouds = useMemo(() => CLOUDS, []);
 
-  if (!state.character) { navigate('/'); return null; }
+  if (!state.character) return <Navigate to="/create" replace />;
 
   const onDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (selected !== null) return;
@@ -130,7 +134,7 @@ export default function World() {
   const onUp = () => {
     const p = press.current;
     press.current = null;
-    if (!p?.dragging) return;
+    if (!p?.dragging || reducedMotion) return;
     const b = bounds(1);
     animate(camX, camX.get(), { type: 'inertia', velocity: p.vx, power: 0.6, timeConstant: 380, min: b.minX, max: b.maxX, bounceStiffness: 200, bounceDamping: 30 });
     animate(camY, camY.get(), { type: 'inertia', velocity: p.vy, power: 0.6, timeConstant: 380, min: b.minY, max: b.maxY, bounceStiffness: 200, bounceDamping: 30 });
@@ -144,20 +148,21 @@ export default function World() {
       toast('Território selado', { description: `Complete a orbe anterior para abrir a ${ORBS[index].name}.` });
       return;
     }
+    sceneTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     saved.current = { x: camX.get(), y: camY.get() };
     setSelected(index);
     const target = centerOn(ORB_SPOTS[index][0], ORB_SPOTS[index][1], ZOOM);
-    const spring = { type: 'spring' as const, stiffness: 70, damping: 18 };
+    const spring = reducedMotion ? { duration: 0 } : { type: 'spring' as const, stiffness: 70, damping: 18 };
     animate(camS, ZOOM, spring);
     animate(camX, target.x, spring);
     animate(camY, target.y, spring);
-    setTimeout(() => setSceneOpen(true), 520);
+    sceneTimer.current = setTimeout(() => setSceneOpen(true), reducedMotion ? 0 : 520);
   };
 
   const closeScene = () => setSceneOpen(false);
 
   const afterClose = () => {
-    const spring = { type: 'spring' as const, stiffness: 80, damping: 20 };
+    const spring = reducedMotion ? { duration: 0 } : { type: 'spring' as const, stiffness: 80, damping: 20 };
     animate(camS, 1, spring);
     animate(camX, saved.current.x, spring);
     animate(camY, saved.current.y, spring);
@@ -216,8 +221,8 @@ export default function World() {
                 <div className="-translate-x-1/2 -translate-y-1/2">
                   <motion.button
                     aria-label={`${orb.name}${open ? '' : ' (selada)'}`}
-                    onClick={() => openOrb(i)}
-                    className="group relative flex h-28 w-28 items-center justify-center"
+                    onClick={event => { if (event.detail === 0) moved.current = false; openOrb(i); }}
+                    className="group relative flex h-28 w-28 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
                     initial={{ scale: 0, opacity: 0 }}
                     animate={selected === i ? { scale: 1.15, opacity: 1 } : selected !== null ? { scale: 0.85, opacity: 0.35 } : wobble === i ? { x: [0, -8, 8, -6, 6, 0], scale: 1, opacity: 1 } : { scale: 1, opacity: 1 }}
                     transition={wobble === i ? { duration: 0.5 } : { type: 'spring', stiffness: 200, damping: 14, delay: selected === null ? 0.3 + i * 0.12 : 0 }}
@@ -232,7 +237,7 @@ export default function World() {
                       alt=""
                       draggable={false}
                       className={`relative h-20 w-20 object-contain drop-shadow-[0_8px_10px_rgba(0,0,0,0.6)] ${open ? '' : 'grayscale-[0.75] brightness-75'}`}
-                      animate={{ y: [0, -8, 0] }}
+                      animate={reducedMotion ? {} : { y: [0, -8, 0] }}
                       transition={{ duration: 3 + i * 0.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
                     />
                     {!open && <span className="rune-socket absolute h-9 w-9"><RpgIcon name="lock" size={17} /></span>}
@@ -248,7 +253,7 @@ export default function World() {
                   </div>
 
                   {current && selected === null && (
-                    <motion.div className="pointer-events-none absolute -top-16 left-1/2 flex -translate-x-1/2 flex-col items-center" animate={{ y: [0, -6, 0] }} transition={{ duration: 1.6, repeat: Infinity }}>
+                    <motion.div className="pointer-events-none absolute -top-16 left-1/2 flex -translate-x-1/2 flex-col items-center" animate={reducedMotion ? {} : { y: [0, -6, 0] }} transition={{ duration: 1.6, repeat: Infinity }}>
                       <img src={CHARACTER_ART.mage} alt="" className="h-14 w-10 object-contain drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]" />
                       <span className="rounded-full bg-accent px-2 py-0.5 font-display text-[9px] font-bold uppercase tracking-wider text-accent-foreground">Você está aqui</span>
                     </motion.div>
@@ -262,8 +267,21 @@ export default function World() {
 
       {/* Title and hint */}
       <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-background/90 via-background/50 to-transparent px-4 pb-8 text-center" style={{ paddingTop: 'calc(1.25rem + env(safe-area-inset-top, 0px))' }}>
-        <h1 className="text-gold font-title text-xl font-bold">Mundo de Althea</h1>
+        <div className="mx-auto flex max-w-4xl items-center gap-3">
+          <Link to="/atlas" className="pointer-events-auto inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-accent/40 bg-background/80 px-3 font-display text-xs text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"><RpgIcon name="map" size={16} /> Atlas</Link>
+          <div className="min-w-0 flex-1 pr-12">
+            <h1 className="text-gold font-title text-base font-bold sm:text-xl">Mundo das Cinco Orbes</h1>
+            <p className="mt-1 font-body text-[10px] text-foreground/80">Jornada do Autoconhecimento</p>
+          </div>
+        </div>
         <OrnateDivider className="mt-1.5" />
+        <div role="group" aria-label="Explorar continentes" className="pointer-events-auto mx-auto mt-3 flex max-w-2xl gap-2 overflow-x-auto pb-2">
+          {ORBS.map((orb, index) => (
+            <button key={orb.id} disabled={!isOrbUnlocked(index)} onClick={() => { moved.current = false; openOrb(index); }} className="min-h-11 shrink-0 rounded-full border border-accent/40 bg-background/85 px-3 font-display text-[10px] text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50">
+              {orb.name}{!isOrbUnlocked(index) && ' · Selada'}
+            </button>
+          ))}
+        </div>
       </div>
       <AnimatePresence>
         {hint && selected === null && (
@@ -281,7 +299,7 @@ export default function World() {
 
       <AnimatePresence onExitComplete={afterClose}>
         {sceneOpen && selected !== null && (
-          <ContinentScene key={ORBS[selected].id} orb={ORBS[selected]} orbIndex={selected} origin={{ x: view.w / 2, y: view.h / 2 }} onClose={closeScene} />
+          <ContinentScene key={ORBS[selected].id} orb={ORBS[selected]} orbIndex={selected} origin={{ x: view.w / 2, y: view.h / 2 }} onClose={closeScene} onReturnFocus={() => sceneTrigger.current?.focus({ preventScroll: true })} />
         )}
       </AnimatePresence>
 

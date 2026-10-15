@@ -1,0 +1,168 @@
+.atlas-page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  overflow: hidden;
+  padding: max(30px, env(safe-area-inset-top)) 28px calc(110px + env(safe-area-inset-bottom));
+  color: #f0e6d5;
+  background: radial-gradient(ellipse at 24% 42%, #253b5540, transparent 48%), radial-gradient(ellipse at 74% 16%, #744b9029, transparent 42%), #100e20;
+}
+.atlas-page::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 10% 70%, #45b4b416, transparent 35%), radial-gradient(ellipse at 50% 45%, #7666b01c, transparent 55%);
+}
+.atlas-cosmos { position: fixed; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
+.atlas-nebula { position: absolute; width: 85vmax; height: 65vmax; border-radius: 50%; filter: blur(45px); opacity: .48; }
+.atlas-nebula--violet { left: -25%; top: -24%; background: radial-gradient(ellipse, #794db588, #4c407b45 42%, transparent 70%); animation: atlas-nebula-drift 42s ease-in-out infinite alternate; }
+.atlas-nebula--teal { right: -30%; bottom: -30%; background: radial-gradient(ellipse, #247e9569, #315f8640 40%, transparent 68%); animation: atlas-nebula-drift 57s -18s ease-in-out infinite alternate-reverse; }
+.atlas-galaxy { position: absolute; left: 30%; top: 40%; width: min(145vmax, 1600px); aspect-ratio: 1; transform: translate(-50%, -50%) rotate(-24deg) scaleY(.58); opacity: .52; }
+.atlas-galaxy-arms { position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(from 30deg, transparent 0deg 24deg, #8a6bb62b 35deg, #ad8ad759 43deg, #6f96c72b 52deg, transparent 66deg 90deg); mask-image: radial-gradient(ellipse, transparent 3%, #000 28%, #000 49%, transparent 70%); filter: blur(12px); animation: atlas-galaxy-spin 130s linear infinite; }
+.atlas-galaxy-core { position: absolute; inset: 14%; border-radius: 50%; background: radial-gradient(ellipse, #d7bbee39, #7d69a128 25%, transparent 66%); animation: atlas-core-breathe 13s ease-in-out infinite alternate; }
+.atlas-stars { position: absolute; inset: -5%; }
+.atlas-stars span { position: absolute; width: var(--star-size); height: var(--star-size); border-radius: 50%; background: #f5eeff; box-shadow: 0 0 5px #dae5ffb3; animation: atlas-star-drift var(--star-speed) var(--star-delay) ease-in-out infinite alternate, atlas-twinkle var(--star-twinkle) var(--star-delay) ease-in-out infinite; }
+.atlas-stars--0 { opacity: .55; }
+.atlas-stars--1 { opacity: .8; }
+.atlas-stars--2 { opacity: .9; }
+.atlas-stars span.atlas-star-radiant::before, .atlas-stars span.atlas-star-radiant::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: linear-gradient(transparent, #f5e7ffb0, transparent); width: 1px; height: 12px; }
+.atlas-stars span.atlas-star-radiant::after { width: 12px; height: 1px; background: linear-gradient(90deg, transparent, #f5e7ffb0, transparent); }
+.atlas-meteors { position: absolute; inset: 0; overflow: hidden; }
+.atlas-meteors i { position: absolute; left: 15%; top: 18%; width: 120px; height: 1px; opacity: 0; background: linear-gradient(90deg, transparent, #dac7fc); box-shadow: 0 0 7px #b5cbff80; transform: rotate(30deg); animation: atlas-meteor 24s 3s linear infinite; }
+.atlas-meteors i:nth-child(2) { left: 50%; top: 33%; width: 90px; animation-duration: 33s; animation-delay: 13s; }
+.atlas-meteors i:nth-child(3) { left: 28%; top: 69%; animation-duration: 39s; animation-delay: 21s; }
+.atlas-header { position: relative; text-align: center; max-width: 700px; margin: 0 auto 28px; }
+.atlas-eyebrow { display: flex; align-items: center; justify-content: center; gap: 8px; color: #e3c994; font-family: var(--font-display); font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
+.atlas-header h1 { font-family: var(--font-title); font-size: clamp(34px, 4.2vw, 52px); font-weight: 800; line-height: 1.3; margin: 11px 0 10px; color: #ffe6ae; text-shadow: 0 2px 4px #05030c, 0 0 30px #d6b57c50; }
+.atlas-header > p:last-of-type { font-family: var(--font-body); font-size: 15px; color: #ded8ed; line-height: 1.6; }
+.atlas-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr); align-items: center; gap: 38px; max-width: 1220px; margin: auto; }
+.atlas-system { min-width: 0; }
+.atlas-system-topline { display: flex; justify-content: space-between; gap: 12px; padding: 0 8px 14px; border-bottom: 1px solid #baa47725; color: #aaa7bb; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-family: var(--font-display); }
+.atlas-system-topline span:last-child { color: #b4c8b3; text-align: right; }
+.atlas-sky { position: relative; height: clamp(420px, 43vw, 560px); }
+.atlas-orbits { position: absolute; inset: 10% 3% 8%; pointer-events: none; transform: rotate(-23deg); }
+.atlas-orbits i { position: absolute; border: 1px solid #b6b0d425; border-radius: 50%; inset: 8% -3%; }
+.atlas-orbits i:nth-child(2) { inset: 25% 7%; border-style: dashed; border-color: #b6b0d41a; }
+.atlas-orbits i:nth-child(3) { inset: 39% 22%; }
+.atlas-orbits i::after { content: ''; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #e9d39b; box-shadow: 0 0 14px #e9d39b; offset-path: ellipse(50% 50% at 50% 50%); animation: atlas-orbit 65s linear infinite; }
+.atlas-orbits i:nth-child(2)::after { animation-duration: 48s; animation-direction: reverse; opacity: .6; }
+.atlas-orbits i:nth-child(3)::after { animation-duration: 35s; opacity: .5; }
+.atlas-sun { position: absolute; left: 50%; top: 49%; transform: translate(-50%, -50%); font-size: 42px; color: #eed2a1; text-shadow: 0 0 35px #debd8a; opacity: .55; pointer-events: none; }
+.atlas-planet { --planet-color: #a7dcdf; --planet-size: 73px; position: absolute; display: flex; flex-direction: column; align-items: center; width: 132px; padding: 9px 4px; border-radius: 16px; transform: translate(-50%, -50%); border: 1px solid transparent; background: transparent; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.atlas-planet:hover { background: #d5cee909; }
+.atlas-planet:focus-visible, .atlas-page a:focus-visible, .atlas-system-caption button:focus-visible, .atlas-world-info:focus-visible { outline: 2px solid #ffe3a0; outline-offset: 5px; }
+.atlas-planet-body { position: relative; display: block; width: var(--planet-size); height: var(--planet-size); margin-bottom: 14px; }
+.atlas-planet-body::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; border: 1px solid var(--planet-color); opacity: 0; transition: opacity .2s; }
+.atlas-planet[aria-pressed=true] .atlas-planet-body::after { opacity: .8; animation: atlas-selection-breathe 4s ease-in-out infinite; }
+.atlas-planet-sphere { display: block; position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 50%; border: 1px solid #ffffff40; background: radial-gradient(circle at 25% 22%, #b9d8cb, #568b80 38%, #244e55 60%, #10172d 90%); box-shadow: inset -18px -9px 19px #070915b3, inset 4px 2px 7px #efffff45, 0 0 24px #8ed5dd20, 10px 15px 25px #0007;  }
+.atlas-planet-sphere::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(circle at 27% 22%, #ffffff38, transparent 45%), linear-gradient(115deg, transparent 28%, #070a1666 65%, #050610e8); box-shadow: inset 2px 1px 6px #edffff80; }
+.atlas-planet-surface { position: absolute; inset: 0; border-radius: inherit; background-size: 200% 100%; background-repeat: repeat-x; opacity: .96; animation: atlas-surface-spin var(--planet-day, 50s) linear infinite; }
+.atlas-planet { touch-action: manipulation; }
+.atlas-planet:disabled { cursor: progress; }
+.atlas-planet--five-orbs { --planet-day: 46s; }
+.atlas-planet-name { display: block; padding: 3px 7px; border-radius: 5px; font-family: var(--font-display); font-size: 14px; font-weight: 800; line-height: 1.4; color: #f5edff; background: linear-gradient(90deg, #0d0b1d40, #0d0b1de6, #0d0b1d40); text-shadow: 0 2px 3px #000, 0 0 12px #afa0c74a; }
+.atlas-planet[aria-pressed=true] .atlas-planet-name { color: #ffe5ad; }
+.atlas-planet-status { display: block; margin-top: 4px; font-size: 12px; color: #d5cce4; text-shadow: 0 1px 4px #000; }
+.atlas-planet-status.is-available { color: #b7e3c7; }
+.atlas-planet--five-orbs { --planet-size: 120px; left: 34%; top: 40%; --planet-color: #a5e1d9; width: 155px; }
+.atlas-planet--five-orbs .atlas-planet-name { font-size: 16px; color: #ffe8b7; }
+.atlas-planet--gnomes { --planet-size: 82px; --planet-color: #d8bb83; left: 78%; top: 28%; }
+.atlas-planet--gnomes .atlas-planet-surface { --planet-day: 64s; background-image: radial-gradient(ellipse at 25% 35%, #b0ab74 0% 12%, transparent 14%), radial-gradient(ellipse at 65% 62%, #496746 0% 22%, transparent 24%), repeating-linear-gradient(165deg, #8eaa7e 0 7px, #688967 8px 20px, #c9b883 28px 36px); }
+.atlas-planet-ring { display: none; }
+.atlas-planet--gnomes .atlas-planet-ring { display: block; position: absolute; inset: 31% -28%; border: 6px double #c5a86799; border-radius: 50%; transform: rotate(-28deg); box-shadow: 0 0 15px #e5c87c20; pointer-events: none; }
+.atlas-planet--leadership { --planet-size: 58px; --planet-color: #e1ad7f; left: 25%; top: 10%; }
+.atlas-planet--leadership .atlas-planet-surface { --planet-day: 55s; background-image: repeating-linear-gradient(22deg, #b7775e 0 8px, #dbac7d 12px 19px, #a86657 22px 31px); }
+.atlas-planet--teamwork { --planet-size: 76px; --planet-color: #8ac6e3; left: 77%; top: 75%; }
+.atlas-planet--teamwork .atlas-planet-surface { --planet-day: 59s; background-image: repeating-linear-gradient(-18deg, #a6cbd0 0 5px, #6e9cb9 9px 17px, #bdd6d5 21px 26px, #6090b0 29px 38px); }
+.atlas-planet--teamwork .atlas-planet-moon { position: absolute; top: 0; right: -16px; width: 19px; height: 19px; border-radius: 50%; background: radial-gradient(circle at 25% 25%, #dfddd1, #65717f 55%, #242839); box-shadow: 0 0 10px #c5e0dd33; }
+.atlas-planet--oratory { --planet-size: 62px; --planet-color: #b6a4df; left: 27%; top: 81%; }
+.atlas-planet--oratory .atlas-planet-surface { --planet-day: 43s; background-image: repeating-radial-gradient(ellipse at 20% 40%, #b496c9 0 3px, #8463a0 6px 11px, #c3a4d0 14px 18px); }
+.atlas-system-caption { text-align: center; font-family: var(--font-body); font-size: 12px; color: #aaa7bb; }
+.atlas-system-caption button { display: inline-flex; align-items: center; gap: 7px; margin-top: 9px; min-height: 44px; color: #d8c28e; cursor: pointer; text-underline-offset: 4px; }
+.atlas-system-caption button:hover { text-decoration: underline; }
+.atlas-world-info { scroll-margin-top: 24px; position: relative; min-width: 0; padding: 27px; border: 1px solid #b89a5e4a; border-radius: 22px 5px 22px 5px; background: linear-gradient(145deg, #272138f2, #171525fa); box-shadow: 0 18px 60px #0003, inset 0 1px #e9cb8d14; }
+.atlas-detail-topline { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-bottom: 23px; }
+.atlas-detail-topline .atlas-eyebrow { font-size: 9px; letter-spacing: .12em; }
+.atlas-availability { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #bcb2cd; }
+.atlas-availability.is-available { color: #b3dbb8; }
+.atlas-world-info h2 { font-family: var(--font-title); font-size: clamp(26px, 2.5vw, 34px); font-weight: 800; text-shadow: 0 2px 4px #05030c; line-height: 1.3; color: #f2ddb1; overflow-wrap: anywhere; }
+.atlas-journey-name { margin-top: 9px; color: #e2c9eb; font-size: 14px; font-weight: 600; font-family: var(--font-display); line-height: 1.5; }
+.atlas-description { margin: 18px 0; font-family: var(--font-body); font-size: 15px; line-height: 1.7; color: #e0dbe8; }
+.atlas-knowledge-title { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #edd3a0; }
+.atlas-knowledge { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 12px 0 19px; font-size: 13px; line-height: 1.6; color: #d4cddd; }
+.atlas-knowledge li { display: flex; gap: 6px; }
+.atlas-knowledge li span { color: #b29967; }
+.atlas-progress { padding-top: 18px; border-top: 1px solid #b99d6c26; font-size: 12px; color: #d3cadd; }
+.atlas-progress > div:first-child { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.atlas-progress strong { color: #edcf8e; font-weight: 500; }
+.atlas-progress-track { height: 5px; border-radius: 6px; background: #ffffff10; overflow: hidden; }
+.atlas-progress-track span { display: block; height: 100%; background: linear-gradient(90deg, #8f7956, #ead09b); border-radius: inherit; }
+.atlas-progress p { margin-top: 9px; }
+.atlas-progress .atlas-resume-label { color: #c7bea9; font-size: 11px; line-height: 1.6; }
+.atlas-actions { display: grid; gap: 10px; margin-top: 23px; }
+.atlas-action-primary, .atlas-action-secondary { display: flex; justify-content: center; align-items: center; gap: 10px; min-height: 48px; padding: 11px 16px; border-radius: 7px; text-align: center; font-family: var(--font-display); font-size: 13px; font-weight: 800; transition: background .2s, box-shadow .2s; }
+.atlas-action-primary { background: linear-gradient(115deg, #d9ba7d, #f0d7a0); color: #251b13; box-shadow: 0 3px 16px #e8c88b15; }
+.atlas-action-primary:hover { box-shadow: 0 2px 24px #e8c88b45; background: #f4dfb7; }
+.atlas-action-secondary { color: #e6d3ae; border: 1px solid #c1a36c66; background: #c9ab6b08; }
+.atlas-action-secondary:hover { background: #c9ab6b18; }
+.atlas-onboarding, .atlas-world-note { font-size: 11px; line-height: 1.7; color: #b5aebf; text-align: center; }
+.atlas-world-note { margin-top: 15px; font-size: 10px; }
+.atlas-coming-soon { display: flex; align-items: flex-start; gap: 12px; margin-top: 25px; padding: 19px 0 0; border-top: 1px solid #b99d6c26; color: #bfb2ce; font-size: 13px; line-height: 1.8; }
+.atlas-coming-soon svg { flex-shrink: 0; margin-top: 3px; color: #b49e7d; }
+.atlas-footer { max-width: 1220px; margin: 35px auto 0; text-align: center; color: #968ba6; font-family: var(--font-display); font-size: 10px; letter-spacing: .08em; }
+.atlas-footer span { margin-right: 6px; color: #c2a67c; }
+@keyframes atlas-surface-spin { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+@keyframes atlas-selection-breathe { 0%, 100% { opacity: .55; box-shadow: 0 0 8px #b6dcf025; } 50% { opacity: .95; box-shadow: 0 0 18px #b6dcf04d; } }
+@keyframes atlas-star-drift { from { transform: translate(0, 0); } to { transform: translate(var(--star-dx), var(--star-dy)); } }
+@keyframes atlas-galaxy-spin { to { transform: rotate(360deg); } }
+@keyframes atlas-nebula-drift { from { transform: translate(-3%, -4%) rotate(-7deg) scale(.95); } to { transform: translate(12%, 9%) rotate(9deg) scale(1.12); } }
+@keyframes atlas-core-breathe { from { opacity: .45; transform: scale(.9); } to { opacity: .9; transform: scale(1.08); } }
+@keyframes atlas-meteor { 0%, 86% { opacity: 0; transform: translate(-50px, -30px) rotate(30deg); } 88% { opacity: .9; } 93%, 100% { opacity: 0; transform: translate(420px, 240px) rotate(30deg); } }
+.atlas-entry { position: fixed; inset: 0; z-index: 90; overflow: hidden; pointer-events: all; cursor: progress; }
+.atlas-entry-shade { position: absolute; inset: 0; background: radial-gradient(ellipse, #171a3733, #080716e6); }
+.atlas-entry-flight { position: absolute; transform: translate(-50%, -50%); }
+.atlas-entry-world { width: 100%; height: 100%; transform-origin: center; }
+.atlas-entry-world .atlas-planet-sphere { border-color: #d0edeb80; box-shadow: 0 0 25px #b4e8ff80, 0 0 70px #8ea4ff33; }
+.atlas-entry-world .atlas-planet-surface { --planet-day: 46s; }
+.atlas-entry-caption { position: absolute; inset: auto 20px 17%; display: flex; flex-direction: column; gap: 9px; align-items: center; text-align: center; color: #fff0d2; text-shadow: 0 2px 12px #000; }
+.atlas-entry-caption strong { font-family: var(--font-title); font-size: clamp(25px, 3vw, 40px); }
+.atlas-entry-caption span { font-family: var(--font-display); font-size: 11px; letter-spacing: .15em; text-transform: uppercase; }
+@keyframes atlas-orbit { to { offset-distance: 100%; } }
+@keyframes atlas-twinkle { 0%, 100% { opacity: .25; } 48% { opacity: .95; } 72% { opacity: .45; } }
+@media (max-width: 900px) {
+  .atlas-layout { grid-template-columns: minmax(0, 1fr); gap: 25px; max-width: 620px; }
+  .atlas-page { padding-left: 24px; padding-right: 24px; }
+  .atlas-sky { height: 490px; }
+  .atlas-header { margin-bottom: 26px; }
+  .atlas-world-info { max-width: 560px; width: 100%; margin: auto; }
+}
+@media (max-width: 480px) {
+  .atlas-page { padding-top: max(24px, env(safe-area-inset-top)); padding-left: 18px; padding-right: 18px; }
+  .atlas-header h1 { font-size: 34px; }
+  .atlas-header > p:last-of-type { font-size: 13px; max-width: 270px; margin: auto; }
+  .atlas-eyebrow { font-size: 10px; }
+  .atlas-system-topline { font-size: 9px; letter-spacing: .08em; padding-left: 0; padding-right: 0; }
+  .atlas-sky { height: 420px; }
+  .atlas-planet { width: 112px; --planet-size: 59px; }
+  .atlas-planet--five-orbs { --planet-size: 95px; width: 138px; left: 29%; top: 43%; }
+  .atlas-planet--gnomes { --planet-size: 68px; left: 78%; top: 28%; }
+  .atlas-planet--leadership { --planet-size: 47px; left: 25%; top: 12%; }
+  .atlas-planet--teamwork { left: 79%; top: 74%; }
+  .atlas-planet--oratory { --planet-size: 51px; left: 27%; top: 83%; }
+  .atlas-planet-name { font-size: 12px; }
+  .atlas-planet--five-orbs .atlas-planet-name { font-size: 14px; }
+  .atlas-world-info { padding: 23px 20px; }
+  .atlas-world-info h2 { font-size: 27px; }
+  .atlas-planet-status { font-size: 11px; }
+}
+.atlas-page[data-motion=reduced] *, .atlas-page[data-motion=reduced] *::before, .atlas-page[data-motion=reduced] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+.atlas-motion-toggle { position: absolute; right: -80px; top: 0; display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 7px 10px; border: 1px solid #c4a96e66; border-radius: 20px; color: #e7d1a6; background: #141122c9; font-family: var(--font-body); font-size: 11px; }
+.atlas-motion-toggle i { position: relative; width: 25px; height: 14px; border-radius: 10px; background: #5a5366; }
+.atlas-motion-toggle i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: #e5d7b7; transition: transform .2s; }
+.atlas-motion-toggle[aria-checked=true] i { background: #8c7547; }
+.atlas-motion-toggle[aria-checked=true] i::after { transform: translateX(11px); }
+.atlas-motion-toggle:focus-visible { outline: 2px solid #ffe3a0; outline-offset: 4px; }
+@media (max-width: 900px) { .atlas-motion-toggle { right: 0; } }
+@media (max-width: 600px) { .atlas-motion-toggle { position: static; margin-top: 14px; min-height: 40px; font-size: 12px; } }

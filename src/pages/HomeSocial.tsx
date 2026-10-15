@@ -133,7 +133,7 @@ export default function HomeSocial() {
   const resume = getJourneyResume(state);
 
   const quickActions: { icon: RpgIconName; label: string; to: string; accent: boolean }[] = [
-    { icon: 'sword', label: 'Jogar', to: '/journeys', accent: true },
+    { icon: 'map', label: 'Atlas', to: '/atlas', accent: true },
     { icon: 'helm', label: 'Herói', to: '/profile', accent: false },
     { icon: 'chest', label: 'Inventário', to: '/inventory', accent: false },
   ];

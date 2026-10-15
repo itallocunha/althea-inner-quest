@@ -20,6 +20,8 @@ export const ORB_LEVEL_ART = byOrb((orb): [string, string] => [art(`orbs/${orb}/
 /** Territory map for each orb, and the whole world map. */
 export const ORB_CONTINENT_ART = byOrb(orb => art(`continents/${orb}.webp`));
 export const WORLD_MAP_ART = art('continents/all.webp');
+/** The Atlas planet reuses the world scenery; magical orb artwork stays inside the world. */
+export const ATLAS_ART = { fiveOrbsSurface: WORLD_MAP_ART };
 /** Printable character sheet for each orb. */
 export const ORB_SHEET_ART = byOrb(orb => art(`sheets/${orb}.webp`));
 /** Lauro in front of each orb. */
