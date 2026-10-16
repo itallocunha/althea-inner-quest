@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type CSSProperties } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Camera, ChevronRight, RotateCcw, Settings2 } from 'lucide-react';
@@ -20,6 +20,9 @@ function savedImage(key: string) {
   try { return localStorage.getItem(key); } catch { return null; }
 }
 
+const XP_RING_RADIUS = 31;
+const XP_RING_LENGTH = 2 * Math.PI * XP_RING_RADIUS;
+
 export default function Profile() {
   const { state, resetGame, getOrbProgress } = useGame();
   const reduced = useReducedMotion();
@@ -34,7 +37,9 @@ export default function Profile() {
   const c = state.character;
   const resume = getJourneyResume(state);
   const currentXP = xpForCurrentLevel(c.xp);
+  const xpPercent = currentXP / XP_PER_LEVEL * 100;
   const totalCompleted = Object.values(state.challengeProgress).filter(progress => progress.completed).length;
+  const orbColor = `hsl(var(--orb-${resume.orb.id}))`;
 
   function uploadImage(event: ChangeEvent<HTMLInputElement>, type: 'portrait' | 'banner') {
     const file = event.target.files?.[0];
@@ -55,16 +60,66 @@ export default function Profile() {
     reader.readAsDataURL(file);
   }
 
+  function inspectPortrait(event: React.MouseEvent<HTMLElement>) {
+    setCardOrigin(event.currentTarget.getBoundingClientRect());
+    setSelectedArt({ src: RACE_ART[c.race].card, label: RACE_LABELS[c.race], type: 'Raça' });
+  }
+
   return <div className="archive-page hero-page">
     <header className="hero-page-heading"><div><p className="archive-eyebrow">Althea · Ficha do personagem</p><h1 className="mt-2 font-title text-3xl text-[#f3dfb8]">Herói</h1></div><button className="hero-customize" aria-label="Personalizar herói" onClick={() => setAppearanceOpen(true)}><Settings2 size={17} /><span>Personalizar</span></button></header>
     <main className="hero-layout">
       <div className="hero-identity">
-        <motion.section className="hero-portrait-stage" initial={reduced ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.section
+          className="hero-portrait-stage"
+          style={{ '--orb-glow': orbColor } as CSSProperties}
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <img src={bannerImage || ORB_CONTINENT_ART[resume.orb.id]} alt="" className="hero-portrait-background" />
-          <img src={profileImage || RACE_ART[c.race].cover} alt={`Retrato de ${c.name}`} className={`hero-portrait-art ${profileImage ? 'is-custom' : 'is-race-art'}`} />
+          <div className="hero-stage-aura" aria-hidden="true" />
+          <div className="hero-stage-embers" aria-hidden="true">
+            {Array.from({ length: 12 }, (_, i) => <i key={i} style={{ left: `${(i * 23 + 9) % 100}%`, '--dur': `${9 + (i % 5) * 2.4}s`, '--delay': `${-i * 1.9}s`, '--sway': `${((i % 3) - 1) * 34}px` } as CSSProperties} />)}
+          </div>
+          <div className="hero-rune-ring" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="88" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 11" />
+              <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" strokeWidth=".6" strokeDasharray="1 7" />
+            </svg>
+          </div>
+          <motion.button
+            className="hero-portrait-button"
+            aria-label={`Inspecionar a essência de ${c.name}`}
+            onClick={inspectPortrait}
+            animate={reduced ? undefined : { y: [0, -9, 0] }}
+            transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <img src={profileImage || RACE_ART[c.race].cover} alt={`Retrato de ${c.name}`} className={`hero-portrait-art ${profileImage ? 'is-custom' : 'is-race-art'}`} />
+          </motion.button>
           <div className="hero-portrait-shade" />
-          <div className="hero-stage-top"><span className="hero-rank"><RpgIcon name="star" size={12} />{totalCompleted === 0 ? 'Uma lenda em despertar' : `${totalCompleted} passos na sua lenda`}</span><span className="hero-level"><small>NÍVEL</small>{c.level}</span></div>
-          <div className="hero-portrait-info"><p className="archive-eyebrow">{CLASS_LABELS[c.characterClass]}</p><h2 className="mt-2 break-words font-title text-3xl leading-snug text-[#f6e4be]">{c.name}</h2><p className="mt-2 font-body text-sm text-[#d0c6dc]">{RACE_LABELS[c.race]} · {c.age} anos</p><div className="mt-5"><XpMeter percent={currentXP / XP_PER_LEVEL * 100} label="Experiência" value={`${currentXP}/${XP_PER_LEVEL} XP`} /></div><p className="mt-2 text-right font-body text-xs text-[#bbb1ca]">{XP_PER_LEVEL - currentXP} XP para o próximo nível</p></div>
+          <div className="hero-stage-top">
+            <span className="hero-rank"><RpgIcon name="star" size={12} />{totalCompleted === 0 ? 'Uma lenda em despertar' : `${totalCompleted} passos na sua lenda`}</span>
+            <div className="hero-level-emblem" role="img" aria-label={`Nível ${c.level}, ${currentXP} de ${XP_PER_LEVEL} de experiência`}>
+              <svg viewBox="0 0 72 72" aria-hidden="true">
+                <circle cx="36" cy="36" r={XP_RING_RADIUS} className="hero-level-track" />
+                <motion.circle
+                  cx="36" cy="36" r={XP_RING_RADIUS}
+                  className="hero-level-progress"
+                  strokeDasharray={XP_RING_LENGTH}
+                  initial={reduced ? false : { strokeDashoffset: XP_RING_LENGTH }}
+                  animate={{ strokeDashoffset: XP_RING_LENGTH * (1 - xpPercent / 100) }}
+                  transition={{ duration: 1.2, ease: 'easeOut' }}
+                />
+              </svg>
+              <div className="hero-level-core"><small>NÍVEL</small>{c.level}</div>
+            </div>
+          </div>
+          <div className="hero-portrait-info">
+            <p className="archive-eyebrow">{CLASS_LABELS[c.characterClass]}</p>
+            <h2 className="mt-2 break-words font-title text-3xl leading-snug text-[#f6e4be]">{c.name}</h2>
+            <p className="mt-2 font-body text-sm text-[#d0c6dc]">{RACE_LABELS[c.race]} · {c.age} anos</p>
+            <div className="mt-5"><XpMeter percent={xpPercent} label="Experiência" value={`${currentXP}/${XP_PER_LEVEL} XP`} /></div>
+            <p className="mt-2 text-right font-body text-xs text-[#bbb1ca]">{XP_PER_LEVEL - currentXP} XP para o próximo nível</p>
+          </div>
         </motion.section>
         <div className="hero-stat-strip"><div><RpgIcon name="sword" size={18} /><strong>{totalCompleted}</strong><span>Desafios</span></div><div><RpgIcon name="medal" size={18} /><strong>{state.unlockedMedals.length}</strong><span>Medalhas</span></div><div><RpgIcon name="flame" size={18} /><strong>{c.xp}</strong><span>XP total</span></div></div>
         <div className="archive-section-label mt-6"><span>Essência do personagem</span><span>Inspecionar</span></div>
