@@ -671,3 +671,31 @@
 @media (max-width: 1050px) { .skill-forest { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 30px 10px; }.medal-columns { grid-template-columns: repeat(3,minmax(0,1fr)); row-gap: 36px; }.skill-tree-heading h2 { font-size: 14px; } }
 @media (max-width: 650px) { .constellation-header { padding: 18px 18px 20px; }.constellation-content { padding: 0 18px; }.constellation-header h1 { font-size: 25px; }.constellation-topline { margin-bottom: 24px; }.constellation-toolbar { flex-direction: column; align-items: stretch; gap: 12px; }.constellation-toolbar .archive-search { max-width: none; }.constellation-orb-selector { gap: 2px; margin: 18px 0 24px; }.constellation-orb-selector .constellation-all { flex-basis: 100%; justify-content: flex-start; }.constellation-orb-selector .constellation-orb-tab { padding: 6px; gap: 3px; font-size: 11px; }.constellation-orb-tab img { width: 22px; height: 22px; }.skill-forest { grid-template-columns: minmax(0,360px); justify-content: center; gap: 38px; }.skill-tree-heading { min-height: 60px; }.medal-columns { grid-template-columns: repeat(2,minmax(0,1fr)); }.medal-column { padding: 0 8px 20px; }.medal-rune-grid { gap: 20px 6px; }.medal-orb-heading h2 { font-size: 12px; }.medal-rune h3 { font-size: 11px; } }
 @media (prefers-reduced-motion: reduce) { .constellation-page *, .constellation-page *::before { animation: none !important; transition: none !important; } }
+
+/* ===== Palco cinematográfico do Herói ===== */
+.hero-portrait-stage { --orb-glow: hsl(var(--orb-purple)); isolation: isolate; }
+.hero-stage-aura { position: absolute; inset: -20%; z-index: 1; background: radial-gradient(ellipse 55% 45% at 50% 42%, color-mix(in srgb, var(--orb-glow) 38%, transparent), transparent 70%); filter: blur(18px); animation: hero-aura-breathe 6s ease-in-out infinite; pointer-events: none; }
+.hero-stage-embers { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+.hero-stage-embers i { position: absolute; bottom: -8px; width: 3px; height: 3px; border-radius: 50%; background: var(--orb-glow); box-shadow: 0 0 9px var(--orb-glow); opacity: 0; animation: hero-ember-rise var(--dur, 12s) linear infinite; animation-delay: var(--delay, 0s); }
+.hero-rune-ring { position: absolute; left: 50%; top: 44%; z-index: 2; width: 78%; aspect-ratio: 1; transform: translate(-50%, -50%); color: color-mix(in srgb, var(--orb-glow) 55%, transparent); pointer-events: none; }
+.hero-rune-ring svg { width: 100%; height: 100%; animation: archive-orbit 46s linear infinite; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--orb-glow) 45%, transparent)); }
+.hero-portrait-button { position: absolute; inset: 0; z-index: 3; width: 100%; cursor: pointer; background: none; border: none; padding: 0; }
+.hero-portrait-button .hero-portrait-art { position: absolute; inset: 0; }
+.hero-portrait-button:focus-visible { outline: 2px solid var(--orb-glow); outline-offset: -6px; border-radius: 18px; }
+.hero-portrait-stage .hero-portrait-shade { z-index: 4; pointer-events: none; }
+.hero-portrait-stage .hero-stage-top, .hero-portrait-stage .hero-portrait-info { z-index: 5; }
+
+.hero-level-emblem { position: relative; flex-shrink: 0; width: 72px; height: 72px; filter: drop-shadow(0 4px 16px rgba(0,0,0,.55)); }
+.hero-level-emblem svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.hero-level-track { fill: rgba(20,13,30,.82); stroke: rgba(215,189,130,.28); stroke-width: 3; }
+.hero-level-progress { fill: none; stroke: #f2c14e; stroke-width: 3.5; stroke-linecap: round; filter: drop-shadow(0 0 5px rgba(242,193,78,.8)); }
+.hero-level-core { position: absolute; inset: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; background: radial-gradient(circle at 50% 30%, #3a2c17, #1d1526 75%); border: 1px solid rgba(215,189,130,.5); color: #f6db9a; font: 24px var(--font-display); }
+.hero-level-core small { font: 7px var(--font-display); letter-spacing: .14em; margin-bottom: 1px; color: #d2bb91; }
+
+@keyframes hero-aura-breathe { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.07); } }
+@keyframes hero-ember-rise { 0% { transform: translateY(0) translateX(0); opacity: 0; } 12% { opacity: .9; } 100% { transform: translateY(-460px) translateX(var(--sway, 0px)); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage-aura, .hero-rune-ring svg, .hero-stage-embers i { animation: none; }
+  .hero-stage-embers { display: none; }
+}
